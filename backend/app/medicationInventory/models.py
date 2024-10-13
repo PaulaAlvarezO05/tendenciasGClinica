@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class MedicationInventory(models.Model):
     nombre_medicamento=models.CharField('Nombre Medicamento', max_length=50)
     descripcion=models.TextField('Descripción', max_length=200)

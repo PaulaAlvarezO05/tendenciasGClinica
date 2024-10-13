@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getPatients, getAppointments, updateAppointment, getMedicos, getConsultationType, getRol } from '../api/Clinica.api';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export function EditAppointments() {
     const [patients, setPatients] = useState([]);
@@ -16,13 +18,11 @@ export function EditAppointments() {
     useEffect(() => {
         async function loadPatients() {
             const res = await getPatients();
-            console.log('Pacientes:', res.data);
             setPatients(res.data);
         }
 
         async function loadAppointments() {
-            const res = await getAppointments(); 
-            console.log('Todas las citas:', res.data);
+            const res = await getAppointments();
             setAllAppointments(res.data);
             filterAppointments(res.data, selectedPatient, selectedMedico);
         }
@@ -53,14 +53,12 @@ export function EditAppointments() {
     }, [selectedPatient, selectedMedico, allAppointments]);
 
     const filterAppointments = (appointments, patientId, medicoId) => {
-        console.log('patientId:', patientId, 'medicoId:', medicoId);
         if (patientId || medicoId) {
             const filtered = appointments.filter((appointment) => {
                 const matchesPatient = patientId ? appointment.paciente === Number(patientId) : true;
                 const matchesMedico = medicoId ? appointment.medico === Number(medicoId) : true;
                 return matchesPatient && matchesMedico && appointment.estado === 'Programada';
             });
-            console.log('Citas filtradas:', filtered); 
             setAppointments(filtered);
         } else {
             setAppointments([]); 
@@ -101,6 +99,53 @@ export function EditAppointments() {
             console.error('Error al cancelar la cita:', error.response?.data || error);
             setUpdateMessage('Error al cancelar la cita. Inténtalo de nuevo.');
         }
+    };
+
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+    
+        doc.setFontSize(20);
+    
+        const tableColumn = ["Paciente", "Médico", "Fecha y Hora", "Tipo de Consulta", "Estado"];
+        const tableRows = [];
+    
+        appointments.forEach(appointment => {
+            const appointmentData = [
+                getPatient(appointment.paciente),
+                getMedico(appointment.medico),
+                new Date(appointment.fecha_hora).toLocaleString(),
+                getConsultation(appointment.tipo_consulta),
+                appointment.estado
+            ];
+            tableRows.push(appointmentData);
+        });
+    
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30
+        });
+
+        let fileName = 'Historial_de_Citas_Médicas';
+        let title = 'Listado de Citas Médicas';
+        if (appointments.length > 0) {
+            const firstAppointment = appointments[0];
+            const patientName = getPatient(firstAppointment.paciente);
+            const medicoName = getMedico(firstAppointment.medico);
+            
+            if (selectedPatient) {
+                fileName += `_${patientName.replace(/\s+/g, '_')}`;
+                title += ` ${patientName}`
+            } else if (selectedMedico) {
+                fileName += `_${medicoName.replace(/\s+/g, '_')}`;
+                title += ` ${medicoName}`
+            }
+        }
+
+        fileName += '.pdf';
+        doc.text(title, 14, 22);
+        doc.save(fileName);
+        
     };
     
     return (
@@ -174,7 +219,14 @@ export function EditAppointments() {
                                                 Cancelar
                                             </button>
                                         )}
+                                        <button 
+                                            className="btn btn-danger btn-sm" 
+                                            onClick={exportToPDF}
+                                        >
+                                            Exportar
+                                        </button>
                                     </td>
+                                    
                                 </tr>
                             ))
                         ) : (

@@ -12,7 +12,10 @@ import { ManageUsers } from './pages/ManageUsers';
 import { UpdateUsers } from './pages/UpdateUsers';
 import { ListUsers } from './pages/ListUsers';
 import { EditAppointments } from './pages/EditAppointments';
-import { ManageAppoinments } from './pages/ManageAppoinments'
+import { ManageAppoinments } from './pages/ManageAppoinments';
+import { ManageMedicalRecords } from './pages/ManageMedicalRecords';
+import { AddPrescriptions } from './pages/AddPrescriptions';
+import { AddMedicalRecords } from './pages/AddMedicalRecords'
 
 export default function App() {
     return (
@@ -22,7 +25,8 @@ export default function App() {
                 <div className="mb-4">
                     <Link to="/manage-appointments" className="btn btn-primary me-2">Citas</Link>
                     <Link to="/manage-patient" className="btn btn-success me-2">Pacientes</Link>
-                    <Link to="/manage-user" className="btn btn-warning">Usuarios</Link> 
+                    <Link to="/manage-user" className="btn btn-warning">Usuarios</Link>
+                    <Link to="/manage-medical-records" className="btn btn-warning">Historias Médicas</Link>
                 </div>
 
                 <Routes>
@@ -39,6 +43,8 @@ export default function App() {
                     <Route path="/list-user" element={<ListUsers />} />
                     <Route path="/edit-appointments" element={<EditAppointments />} />
                     <Route path="/manage-appointments" element={<ManageAppoinments />} />
+                    <Route path="/manage-medical-records" element={<ManageMedicalRecords />} />
+                    <Route path="/add-medical-records" element={<AddMedicalRecords />} />
                 </Routes>
             </div>
         </Router>

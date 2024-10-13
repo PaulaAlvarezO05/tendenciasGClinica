@@ -55,14 +55,11 @@ export function ListAppointments() {
     const exportToPDF = () => {
         const doc = new jsPDF();
 
-       
         doc.setFontSize(20);
         doc.text('Listado de Citas Médicas', 14, 22);
 
-        
         const tableColumn = ["Paciente", "Médico", "Fecha y Hora", "Tipo de Consulta", "Estado"];
         const tableRows = [];
-
         
         appointments.forEach(appointment => {
             const appointmentData = [
@@ -74,11 +71,8 @@ export function ListAppointments() {
             ];
             tableRows.push(appointmentData);
         });
-
         
         doc.autoTable(tableColumn, tableRows, { startY: 30 });
-
-        
         doc.save('Historial de Citas Médicas.pdf');
     };
 

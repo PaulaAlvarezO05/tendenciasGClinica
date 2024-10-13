@@ -33,33 +33,17 @@ export const getMedicalSpecialties = () => {
     return clinicaApi.get('/medicalSpecialties/')
 }
 
+export const getMedicationInventory = () => {
+    return clinicaApi.get('/medicationInventory/')
+} 
+
 // Métodos POST(Create)
 export const addPatient = async (patientData) => {
     try {
         const response = await clinicaApi.post('/patients/', patientData);
-        return response.data; // Retorna la respuesta de la API, puede ser útil para manejar la respuesta
+        return response.data; 
     } catch (error) {
         console.error('Error al agregar el paciente:', error);
-        throw error; // Lanza el error para que se pueda manejar en el componente
-    }
-};
-
-export const updatePatient = async (id, patientData) => {
-    try {
-        const response = await clinicaApi.put(`/patients/${id}/`, patientData);
-        return response.data;
-    } catch (error) {
-        console.error('Error al actualizar el paciente:', error.response?.data || error); // Muestra el error detallado
-        throw error;
-    }
-};
-
-export const deletePatient = async (id) => {
-    try {
-        const response = await clinicaApi.delete(`/patients/${id}/`);
-        return response.data; // Puede que no devuelva nada
-    } catch (error) {
-        console.error('Error al eliminar el paciente:', error);
         throw error;
     }
 };
@@ -79,27 +63,48 @@ export const addUser = async (userData) => {
         const response = await clinicaApi.post('/users/', userData);
         return response.data;
     } catch (error) {
-        console.error('Error al agendar la cita:', error);
+        console.error('Error al registar el usuario:', error);
         throw error;
     }
 };
 
-export const updateUser = async (id, userData) => {  // Función para actualizar usuarios
+export const addPrescription = async (prescriptionData) => {
+    try {
+        const response = await clinicaApi.post('/prescriptions/', prescriptionData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al registrar la prescripción:', error);
+        throw error;
+    }
+};
+
+export const addMedicalRecord = async (medicalRecordData) => {
+    try {
+        const response = await clinicaApi.post('/medicalRecords/', medicalRecordData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al registrar la historia clínica:', error);
+        throw error;
+    }
+};
+
+// Métodos PUT(Update)
+export const updatePatient = async (id, patientData) => {
+    try {
+        const response = await clinicaApi.put(`/patients/${id}/`, patientData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al actualizar el paciente:', error.response?.data || error);
+        throw error;
+    }
+};
+
+export const updateUser = async (id, userData) => {
     try {
         const response = await clinicaApi.put(`/users/${id}/`, userData);
         return response.data;
     } catch (error) {
         console.error('Error al actualizar el usuario:', error.response?.data || error);
-        throw error;
-    }
-};
-
-export const deleteUser = async (id) => {  // Función para eliminar usuarios
-    try {
-        const response = await clinicaApi.delete(`/users/${id}/`);
-        return response.data; 
-    } catch (error) {
-        console.error('Error al eliminar el usuario:', error);
         throw error;
     }
 };
@@ -115,3 +120,27 @@ export const updateAppointment = async (id, updatedData) => {
         throw error;
     }
 }
+
+// Métodos DELETE(Delete)
+export const deletePatient = async (id) => {
+    try {
+        const response = await clinicaApi.delete(`/patients/${id}/`);
+        return response.data; // Puede que no devuelva nada
+    } catch (error) {
+        console.error('Error al eliminar el paciente:', error);
+        throw error;
+    }
+};
+
+export const deleteUser = async (id) => {  // Función para eliminar usuarios
+    try {
+        const response = await clinicaApi.delete(`/users/${id}/`);
+        return response.data; 
+    } catch (error) {
+        console.error('Error al eliminar el usuario:', error);
+        throw error;
+    }
+};
+
+
+
