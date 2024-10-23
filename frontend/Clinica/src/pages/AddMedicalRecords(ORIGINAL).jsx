@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { Button, Table, Modal } from "react-bootstrap";
-import { getPatients, addMedicalRecord, addPrescription } from '../api/Clinica.api';
+import { getPatients, getMedicos, getRol, addMedicalRecord, addPrescription } from '../api/Clinica.api';
 import { AddPrescriptions } from "./AddPrescriptions";
-import { useLocation } from 'react-router-dom';
 
-export function AddMedicalRecords() { 
+export function AddMedicalRecords() {
     const [prescripcion, setPrescripcion] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const location = useLocation();
-    const { patientId, medicoId } = location.state || {};
     const [listPatient, setListPatient] = useState([]);
+    const [listUsers, setListUsers] = useState([]);
+    const [listMedico, setListMedico] = useState([]);
+    const [listRol, setListRol] = useState([]);
+    const [patient, setPatient] = useState('');
+    const [medico, setMedico] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -19,13 +21,32 @@ export function AddMedicalRecords() {
             setListPatient(res.data);
         }
 
-        loadPatients()
+        async function loadMedicos() {
+            const res = await getMedicos();
+            setListUsers(res.data);
+            setListMedico(res.data);
+        }
+
+        async function loadRol() {
+            const res = await getRol();
+            setListRol(res.data);
+        }
+
+        async function loadData() {
+            await Promise.all([loadPatients(), loadMedicos(), loadRol()]);
+        }
+        loadData();
     }, []);
 
-    const getPatient = (id) => {
-        const patient = listPatient.find(p => p.id === id);
-        return patient ? patient.nombre_completo : 'Desconocido';
-    };
+    useEffect(() => {
+        if (listRol.length > 0 && listUsers.length > 0) {
+            const rol = listRol.find(r => r.nombre === 'Médico');
+            if (rol) {
+                const medicosFiltrados = listUsers.filter(m => m.rol === rol.id);
+                setListMedico(medicosFiltrados);
+            }
+        }
+    }, [listRol, listUsers]);
 
     const handleAddRecord = (newPrescription) => {
         setPrescripcion([...prescripcion, newPrescription]);
@@ -36,13 +57,11 @@ export function AddMedicalRecords() {
         e.preventDefault();
 
         const newMedicalRecord = {
-            paciente: patientId,
-            medico: medicoId,
+            paciente: patient,
+            medico: medico,
             fecha_registro: new Date().toISOString(),
             descripcion_diagnostico: diagnosis
         };
-
-        console.log(newMedicalRecord)
 
         try {
             const res = await addMedicalRecord(newMedicalRecord);
@@ -61,6 +80,8 @@ export function AddMedicalRecords() {
                 await addPrescription(newPrescription);
             }
 
+            setPatient('');
+            setMedico('');
             setDiagnosis('');
             setPrescripcion([]);
             setSuccessMessage('Historia clínica registrada exitosamente!');
@@ -79,13 +100,38 @@ export function AddMedicalRecords() {
                 <form>
                     <div className="form-group mb-3">
                         <label htmlFor="patient" className="form-label fw-bold">Paciente</label>
-                        <input
-                            type="text"
-                            className="form-control"
+                        <select
+                            className="form-select"
                             id="patient"
-                            value={getPatient(patientId)}
-                            readOnly
-                        />
+                            value={patient}
+                            onChange={(e) => setPatient(e.target.value)}
+                            required
+                        >
+                            <option disabled value="">Seleccione un paciente</option>
+                            {listPatient.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.nombre_completo}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group mb-3">
+                        <label htmlFor="medico" className="form-label fw-bold">Médico</label>
+                        <select
+                            className="form-select"
+                            id="medico"
+                            value={medico}
+                            onChange={(e) => setMedico(e.target.value)}
+                            required
+                        >
+                            <option disabled value="">Seleccione un médico</option>
+                            {listMedico.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {`${m.nombres} ${m.apellidos}`}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="form-group mb-3">

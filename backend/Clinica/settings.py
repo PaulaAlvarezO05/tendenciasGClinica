@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt', #Autenticación
     'django_filters',
     'corsheaders', 
     'drf_yasg',
@@ -53,6 +54,18 @@ INSTALLED_APPS = [
     'app.roles',
     'app.users',
 ]
+
+# Agregado para la autenticación
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'TOKEN_OBTAIN_SERIALIZER': 'app.users.serializers.UserTokenObtainPairSerializer',
+}
+# --------------------------------------
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

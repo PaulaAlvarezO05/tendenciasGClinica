@@ -15,7 +15,7 @@ class Appointment(models.Model):
      User,
      verbose_name="Médico", 
      on_delete=models.CASCADE,
-     limit_choices_to={'rol__nombre': 'Médico'}, #Filtro para que solo los usuarios con el rol de "Médico" puedan ser seleccionados
+     limit_choices_to={'rol__nombre': 'Médico'},
      null=True, 
      blank=True
   ) 

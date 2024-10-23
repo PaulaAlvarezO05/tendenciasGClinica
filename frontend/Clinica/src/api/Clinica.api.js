@@ -4,6 +4,19 @@ const clinicaApi = axios.create({
     baseURL: 'http://127.0.0.1:8000/api/'
 })
 
+clinicaApi.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // Métodos GET(Read)
 export const getAppointments = () => {
     return clinicaApi.get('/appointments/')
@@ -88,6 +101,21 @@ export const addMedicalRecord = async (medicalRecordData) => {
     }
 };
 
+export const login = async (credentials) => {
+    try {
+        const response = await clinicaApi.post('/token/', credentials);
+        return response.data.access;
+    } catch (error) {
+        console.error("Error en el inicio de sesión:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+export const getUser = async (id) => {
+    const response = await clinicaApi.get(`/users/${id}/`)
+    return response.data
+}
+
 // Métodos PUT(Update)
 export const updatePatient = async (id, patientData) => {
     try {
@@ -125,14 +153,14 @@ export const updateAppointment = async (id, updatedData) => {
 export const deletePatient = async (id) => {
     try {
         const response = await clinicaApi.delete(`/patients/${id}/`);
-        return response.data; // Puede que no devuelva nada
+        return response.data;
     } catch (error) {
         console.error('Error al eliminar el paciente:', error);
         throw error;
     }
 };
 
-export const deleteUser = async (id) => {  // Función para eliminar usuarios
+export const deleteUser = async (id) => {
     try {
         const response = await clinicaApi.delete(`/users/${id}/`);
         return response.data; 
@@ -141,6 +169,8 @@ export const deleteUser = async (id) => {  // Función para eliminar usuarios
         throw error;
     }
 };
+
+
 
 
 

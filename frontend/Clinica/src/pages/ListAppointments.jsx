@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { getAppointments, getPatients, getMedicos, getConsultationType } from '../api/Clinica.api';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useNavigate } from 'react-router-dom';
 
-export function ListAppointments() {
+export function ListAppointments({ rol }) {
     const [appointments, setAppointments] = useState([]);
     const [patients, setPatients] = useState([]);
     const [medicos, setMedicos] = useState([]);
     const [consultation, setConsultation] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function loadAppointments() {
@@ -51,29 +53,40 @@ export function ListAppointments() {
         return consult ? consult.nombre : 'Desconocido';
     };
 
-    
     const exportToPDF = () => {
         const doc = new jsPDF();
-
         doc.setFontSize(20);
         doc.text('Listado de Citas Médicas', 14, 22);
 
-        const tableColumn = ["Paciente", "Médico", "Fecha y Hora", "Tipo de Consulta", "Estado"];
-        const tableRows = [];
+        const tableColumn = rol === 'Médico'
+            ? ["Paciente", "Fecha y Hora", "Acciones"]
+            : ["Paciente", "Médico", "Fecha y Hora", "Tipo de Consulta", "Estado"];
         
+        const tableRows = [];
+
         appointments.forEach(appointment => {
-            const appointmentData = [
-                getPatient(appointment.paciente),
-                getMedico(appointment.medico),
-                new Date(appointment.fecha_hora).toLocaleString(),
-                getConsultation(appointment.tipo_consulta),
-                appointment.estado
-            ];
+            const appointmentData = rol === 'Médico'
+                ? [
+                    getPatient(appointment.paciente),
+                    new Date(appointment.fecha_hora).toLocaleString(),
+                    'Gestionar'
+                ]
+                : [
+                    getPatient(appointment.paciente),
+                    getMedico(appointment.medico),
+                    new Date(appointment.fecha_hora).toLocaleString(),
+                    getConsultation(appointment.tipo_consulta),
+                    appointment.estado
+                ];
             tableRows.push(appointmentData);
         });
-        
+
         doc.autoTable(tableColumn, tableRows, { startY: 30 });
         doc.save('Historial de Citas Médicas.pdf');
+    };
+
+    const handleAddMedicalRecord = (patientId, medicoId) => {
+        navigate('/medical-record', { state: { patientId, medicoId } });
     };
 
     return (
@@ -83,35 +96,55 @@ export function ListAppointments() {
                 <table className="table table-striped table-bordered table-hover">
                     <thead className="thead-dark">
                         <tr>
-                            <th>Paciente</th>
-                            <th>Médico</th>
-                            <th>Fecha y Hora</th>
-                            <th>Tipo de Consulta</th>
-                            <th>Estado</th>
+                            {rol === 'Médico' ? (
+                                <>
+                                    <th>Paciente</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Acciones</th>
+                                </>
+                            ) : (
+                                <>
+                                    <th>Paciente</th>
+                                    <th>Médico</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Tipo de Consulta</th>
+                                    <th>Estado</th>
+                                </>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
                         {appointments.map(appointment => (
                             <tr key={appointment.id}>
                                 <td>{getPatient(appointment.paciente)}</td>
-                                <td>{getMedico(appointment.medico)}</td>
+                                {rol !== 'Médico' && <td>{getMedico(appointment.medico)}</td>}
                                 <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
-                                <td>{getConsultation(appointment.tipo_consulta)}</td>
-                                <td>
-                                    <span className={`badge ${appointment.estado === 'Completada' ? 'bg-success' : appointment.estado === 'Programada' ? 'bg-warning' : 'bg-danger'}`}>
-                                        {appointment.estado}
-                                    </span>
-                                </td>
+                                {rol !== 'Médico' && <td>{getConsultation(appointment.tipo_consulta)}</td>}
+                                {rol !== 'Médico' ? (
+                                    <td>
+                                        <span className={`badge ${appointment.estado === 'Completada' ? 'bg-success' : appointment.estado === 'Programada' ? 'bg-warning' : 'bg-danger'}`}>
+                                            {appointment.estado}
+                                        </span>
+                                    </td>
+                                ) : (
+                                    <td>
+                                        <button className="btn btn-primary" onClick={() => handleAddMedicalRecord(appointment.paciente, appointment.medico)}>
+                                            Gestionar
+                                        </button>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-            <div className="text-end mb-3">
-                <button className="btn btn-primary btn-lg" onClick={exportToPDF}>
-                    <i className="fas fa-file-export"></i> Exportar
-                </button>
-            </div>
+            {rol !== 'Médico' && (
+                <div className="text-end mb-3">
+                    <button className="btn btn-primary btn-lg" onClick={exportToPDF}>
+                        <i className="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
