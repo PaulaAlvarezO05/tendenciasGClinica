@@ -11,8 +11,6 @@ const AsistentePanel = () => {
   const services = [
     { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Agendar Citas', link: '/add-appointment' },
     { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Cancelar Citas', link: '/edit-appointments' },
-    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de Citas', link: '/list-appointments' },
-    { Component: ServiceCard, icon: <FileText size={48} />, title: 'Historias clínicas', link: '#' },
     { Component: ServiceCard, icon: <Pill size={48} />, title: 'Medicamentos', link: '#' },
     { Component: ServiceCard, icon: <ClipboardList size={48} />, title: 'Facturación', link: '#' }
     

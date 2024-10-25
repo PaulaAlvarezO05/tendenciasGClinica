@@ -4,6 +4,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from '../components/NavigationBar';
+import { Search, Download } from 'lucide-react';
 
 export function ListAppointments({ rol }) {
     const [allAppointments, setAllAppointments] = useState([]);
@@ -105,10 +106,6 @@ export function ListAppointments({ rol }) {
         doc.save(fileName);
     };
 
-    const handleExportSingleAppointment = (appointment) => {
-        exportToPDF([appointment]);
-    };
-
     const handleAddMedicalRecord = (patientId, medicoId, appointmentId) => {
         navigate('/medical-record', { state: { patientId, medicoId, appointmentId } });
     };
@@ -147,7 +144,7 @@ export function ListAppointments({ rol }) {
                     </div>
                 )}
         
-                <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded">
+                <div className="table-responsive shadow-sm p-3 mb-4 bg-white rounded">
                     <table className="table table-striped table-bordered table-hover">
                         <thead className="thead-dark">
                             <tr>
@@ -213,12 +210,12 @@ export function ListAppointments({ rol }) {
                                                     {appointment.estado}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td className="text-center">
                                                 <button 
-                                                    className="btn btn-secondary btn-sm"
-                                                    onClick={() => handleExportSingleAppointment(appointment)}
+                                                    className="btn btn-info btn-sm"
+                                                    onClick={() => exportToPDF([appointment])}
                                                 >
-                                                    <i className="fas fa-file-export"></i> Exportar
+                                                    <i className="fas fa-file-export"></i> <Download />
                                                 </button>
                                             </td>
                                         </>
@@ -234,7 +231,7 @@ export function ListAppointments({ rol }) {
                             className="btn btn-primary btn-lg"
                             onClick={() => exportToPDF()}
                         >
-                            <i className="fas fa-file-export"></i> Exportar Todo
+                            <i className="fas fa-file-export"></i> Exportar listado
                         </button>
                     </div>
                 )}
