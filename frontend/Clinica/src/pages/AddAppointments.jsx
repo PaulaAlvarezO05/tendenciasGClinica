@@ -9,6 +9,10 @@ export function AddAppointment() {
     const [listConsultation, setListConsultation] = useState([]);
     const [listRol, setListRol] = useState([]);
     const [patient, setPatient] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredPatients, setFilteredPatients] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedPatientName, setSelectedPatientName] = useState('');
     const [medico, setMedico] = useState('');
     const [consultation, setConsultation] = useState('');
     const [fecha_hora, setFechaHora] = useState('');
@@ -24,7 +28,7 @@ export function AddAppointment() {
         async function loadMedicos() {
             const res = await getMedicos();
             setListUsers(res.data); 
-            setListMedico(res.data); 
+            setListMedico(res.data);
         }
 
         async function loadConsultation() {
@@ -42,7 +46,26 @@ export function AddAppointment() {
         }
         loadData();
     }, []);
+    
+    useEffect(() => {
+        if (searchTerm.trim()) {
+            const filtered = listPatient.filter(p => 
+                p.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredPatients(filtered);
+            setShowDropdown(true);
+        } else {
+            setFilteredPatients([]);
+            setShowDropdown(false);
+        }
+    }, [searchTerm, listPatient]);
 
+    const handlePatientSelect = (selectedPatient) => {
+        setPatient(selectedPatient.id);
+        setSelectedPatientName(selectedPatient.nombre_completo);
+        setSearchTerm(selectedPatient.nombre_completo);
+        setShowDropdown(false);
+    };
 
     useEffect(() => {
         if (consultation) {
@@ -69,6 +92,7 @@ export function AddAppointment() {
         }
     }, [consultation, listUsers, listConsultation, listRol]);
     
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -83,6 +107,8 @@ export function AddAppointment() {
         try {
             await addAppointment(newAppoinment);
             setPatient('');
+            setSearchTerm('');
+            setSelectedPatientName('');
             setMedico('');
             setFechaHora('');
             setConsultation('');
@@ -100,22 +126,33 @@ export function AddAppointment() {
             <div className="bg-light p-4 rounded shadow">
                 {successMessage && <div className="alert alert-success text-center">{successMessage}</div>}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group mb-3">
-                        <label htmlFor="patient" className="form-label">Paciente</label>
-                        <select
-                            className="form-select"
-                            id="patient"
-                            value={patient}
-                            onChange={(e) => setPatient(e.target.value)}
+                    <div className="form-group mb-3 position-relative">
+                        <label htmlFor="patient-search" className="form-label">Buscar Paciente</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="patient-search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Escriba el nombre del paciente..."
                             required
-                        >
-                            <option disabled value="">Seleccione</option>
-                            {listPatient.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.nombre_completo}
-                                </option>
-                            ))}
-                        </select>
+                        />
+                        {showDropdown && filteredPatients.length > 0 && (
+                            <div className="position-absolute w-100 mt-1 bg-white border rounded shadow-sm" style={{ zIndex: 1000, maxHeight: '200px', overflowY: 'auto' }}>
+                                {filteredPatients.map((p) => (
+                                    <div
+                                        key={p.id}
+                                        className="p-2 cursor-pointer hover:bg-gray-100"
+                                        onClick={() => handlePatientSelect(p)}
+                                        style={{ cursor: 'pointer' }}
+                                        onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                                        onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                                    >
+                                        {p.nombre_completo}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-group mb-3">

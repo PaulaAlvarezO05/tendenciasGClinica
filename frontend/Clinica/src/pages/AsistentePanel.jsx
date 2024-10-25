@@ -4,16 +4,16 @@ import { AuthContext } from '../api/AuthContext';
 import PanelLayout from '../components/PanelLayout';
 import ServiceCard from '../components/ServiceCard';
 
-const AdminPanel = () => {
+const AsistentePanel = () => {
   const { name, lastName } = useContext(AuthContext);
   const medicoName = `${name} ${lastName}`;
   
   const services = [
-    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de pacientes', link: '#' },
-    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de empleados', link: '#' },
+    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Agendar Citas', link: '/add-appointment' },
+    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Cancelar Citas', link: '/edit-appointments' },
     { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de Citas', link: '/list-appointments' },
     { Component: ServiceCard, icon: <FileText size={48} />, title: 'Historias clínicas', link: '#' },
-    { Component: ServiceCard, icon: <Pill size={40} />, title: 'Medicamentos', link: '#' },
+    { Component: ServiceCard, icon: <Pill size={48} />, title: 'Medicamentos', link: '#' },
     { Component: ServiceCard, icon: <ClipboardList size={48} />, title: 'Facturación', link: '#' }
     
   ];
@@ -21,4 +21,4 @@ const AdminPanel = () => {
   return <PanelLayout userType="" userName={medicoName} services={services} />;
 };
 
-export default AdminPanel;
+export default AsistentePanel;

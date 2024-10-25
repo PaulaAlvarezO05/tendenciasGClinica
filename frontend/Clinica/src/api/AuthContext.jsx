@@ -1,15 +1,17 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { login, getUser } from '../api/Clinica.api';
 import { jwtDecode } from 'jwt-decode';
+import { Construction } from 'lucide-react';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(() => localStorage.getItem('token'));
+    const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'));
     const [rol, setRol] = useState(null);
     const [name, setName] = useState("");
     const [lastName, setLastName] = useState("");
-    
+
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
@@ -25,12 +27,15 @@ export const AuthProvider = ({ children }) => {
 
     const loginUser = async (credentials) => {
         console.log("Intentando iniciar sesión con las credenciales:", credentials);
-
-        const token = await login(credentials);
-        setToken(token);
-        localStorage.setItem('token', token);
-
-        const decodedToken = jwtDecode(token);
+        
+        const { accessToken, refreshToken } = await login(credentials);
+        setToken(accessToken);
+        localStorage.setItem('token', accessToken);
+        setRefreshToken(refreshToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        console.log("token", accessToken, refreshToken)
+        console.log("refreshToken", refreshToken)
+        const decodedToken = jwtDecode(accessToken);
         const userRole = decodedToken.rol;
         setRol(userRole);
 
@@ -43,7 +48,9 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         console.log("Cerrando sesión...");
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         setToken(null);
+        setRefreshToken(null);
         setRol(null);
         setName("");
         setLastName("");

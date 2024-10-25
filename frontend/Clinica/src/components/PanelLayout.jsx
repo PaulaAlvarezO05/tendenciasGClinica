@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Card, Container, Row, Button } from 'react-bootstrap';
+import { Card, Container, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../api/AuthContext';
 
@@ -28,12 +28,15 @@ const PanelLayout = ({ userType, userName, services }) => {
         <h3 className="mt-4">Servicios</h3>
         <Row className="justify-content-center">
           {services.map((service, index) => (
-            <service.Component 
-              key={index} 
-              icon={service.icon} 
-              title={service.title} 
-              link={service.link} 
-            />
+            <Col xs={12} sm={6} md={4} lg={2} key={index} className="mb-4 d-flex justify-content-center"> 
+              <div className="text-center">
+              <service.Component 
+                icon={<span className="d-flex justify-content-center">{service.icon}</span>} 
+                title={service.title} 
+                link={service.link} 
+              />
+              </div>
+            </Col>
           ))}
         </Row>
       </Card>

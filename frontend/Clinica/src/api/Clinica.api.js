@@ -4,6 +4,7 @@ const clinicaApi = axios.create({
     baseURL: 'http://127.0.0.1:8000/api/'
 })
 
+// Implementación de JWT
 clinicaApi.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -16,6 +17,52 @@ clinicaApi.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+clinicaApi.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+                const response = await clinicaApi.post('/token/refresh/', {}, {
+                    headers: { Authorization: `Bearer ${refreshToken}` }
+                });
+                
+                const newToken = response.data.access;
+                localStorage.setItem('token', newToken);
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return axios(originalRequest);
+            } catch (err) {
+                console.error('Error al renovar el token', err);
+                logout();
+                return Promise.reject(err);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+export const login = async (credentials) => {
+    try {
+        const response = await clinicaApi.post('/token/', credentials);
+        return {
+            accessToken: response.data.access,
+            refreshToken: response.data.refresh
+        };
+    } catch (error) {
+        console.error("Error en el inicio de sesión:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+export const getUser = async (id) => {
+    const response = await clinicaApi.get(`/users/${id}/`)
+    return response.data
+}
+//------------------------------------------------------------------------------------------------
 
 // Métodos GET(Read)
 export const getAppointments = () => {
@@ -101,20 +148,7 @@ export const addMedicalRecord = async (medicalRecordData) => {
     }
 };
 
-export const login = async (credentials) => {
-    try {
-        const response = await clinicaApi.post('/token/', credentials);
-        return response.data.access;
-    } catch (error) {
-        console.error("Error en el inicio de sesión:", error.response ? error.response.data : error.message);
-        throw error;
-    }
-};
 
-export const getUser = async (id) => {
-    const response = await clinicaApi.get(`/users/${id}/`)
-    return response.data
-}
 
 // Métodos PUT(Update)
 export const updatePatient = async (id, patientData) => {
@@ -169,8 +203,3 @@ export const deleteUser = async (id) => {
         throw error;
     }
 };
-
-
-
-
-

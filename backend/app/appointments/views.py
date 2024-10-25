@@ -10,7 +10,7 @@ class AppointmentViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         
-        if user.rol.nombre == 'Administrador' or user.rol.nombre == 'Asistente Administrativo':
+        if user.rol.nombre in ['Administrador', 'Asistente Administrativo']:
             return Appointment.objects.all()
 
         if user.rol.nombre == 'Médico':
@@ -26,7 +26,7 @@ class AppointmentViewset(viewsets.ModelViewSet):
 
         if self.action in ['list', 'update']:
             self.permission_classes = [IsMedico]
-        elif self.action in ['retrieve', 'create', 'update']:
+        elif self.action in ['list', 'create', 'update']:
             self.permission_classes = [IsAsistAdmin]
 
         return super().get_permissions()
