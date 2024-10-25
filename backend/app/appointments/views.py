@@ -20,14 +20,16 @@ class AppointmentViewset(viewsets.ModelViewSet):
 
     def get_permissions(self):
         user = self.request.user
+        permission_classes = []
         
         if user.rol.nombre == 'Administrador':
-            return []
-
-        if self.action in ['list', 'update']:
-            self.permission_classes = [IsMedico]
-        elif self.action in ['list', 'create', 'update']:
-            self.permission_classes = [IsAsistAdmin]
-
+            permission_classes = [IsAdmin]
+        elif user.rol.nombre == 'Médico':
+            if self.action in ['list', 'retrieve', 'update']:
+                permission_classes = [IsMedico]
+        elif user.rol.nombre == 'Asistente Administrativo':
+            if self.action in ['list', 'retrieve', 'create', 'update']:
+                permission_classes = [IsAsistAdmin]
+                
+        self.permission_classes = permission_classes
         return super().get_permissions()
-    

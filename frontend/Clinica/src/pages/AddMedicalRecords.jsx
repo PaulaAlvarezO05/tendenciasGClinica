@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button, Table, Modal } from "react-bootstrap";
-import { getPatients, addMedicalRecord, addPrescription } from '../api/Clinica.api';
+import { getPatients, addMedicalRecord, addPrescription, updateAppointment, getAppointment } from '../api/Clinica.api';
 import { AddPrescriptions } from "./AddPrescriptions";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function AddMedicalRecords() { 
     const [prescripcion, setPrescripcion] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const location = useLocation();
-    const { patientId, medicoId } = location.state || {};
+    const navigate = useNavigate();
+    const { patientId, medicoId, appointmentId } = location.state || {};
     const [listPatient, setListPatient] = useState([]);
     const [diagnosis, setDiagnosis] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -42,8 +43,6 @@ export function AddMedicalRecords() {
             descripcion_diagnostico: diagnosis
         };
 
-        console.log(newMedicalRecord)
-
         try {
             const res = await addMedicalRecord(newMedicalRecord);
             const medicalRecordId = res.id;
@@ -61,10 +60,21 @@ export function AddMedicalRecords() {
                 await addPrescription(newPrescription);
             }
 
+            if (appointmentId) {
+                const appointmentToUpdate = await getAppointment(appointmentId);
+                await updateAppointment(appointmentId, {
+                    ...appointmentToUpdate,
+                    estado: 'Completada'
+                });
+            }
+
             setDiagnosis('');
             setPrescripcion([]);
             setSuccessMessage('Historia clínica registrada exitosamente!');
-            setTimeout(() => setSuccessMessage(''), 3000);
+            
+            setTimeout(() => {
+                navigate('/list-appointments');
+            }, 2000);
         } catch (error) {
             console.error('Error al registrar la historia clínica o las prescripciones:', error);
             setSuccessMessage('Error al registrar. Inténtalo de nuevo.');

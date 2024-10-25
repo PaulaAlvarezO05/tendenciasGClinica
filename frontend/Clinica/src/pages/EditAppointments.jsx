@@ -1,69 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { getPatients, getAppointments, updateAppointment, getMedicos, getConsultationType, getRol } from '../api/Clinica.api';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getPatients, getAppointments, updateAppointment, getMedicos, getConsultationType } from '../api/Clinica.api';
 
 export function EditAppointments() {
     const [patients, setPatients] = useState([]);
     const [allAppointments, setAllAppointments] = useState([]);
     const [appointments, setAppointments] = useState([]);
-    const [selectedPatient, setSelectedPatient] = useState('');
-    const [selectedMedico, setSelectedMedico] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [updateMessage, setUpdateMessage] = useState('');
     const [medicos, setMedicos] = useState([]);
     const [consultation, setConsultation] = useState([]);
-    const [listRol, setListRol] = useState([]);
-    const [rol, setRol] = useState('');
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [newDateTime, setNewDateTime] = useState('');
 
     useEffect(() => {
-        async function loadPatients() {
-            const res = await getPatients();
-            setPatients(res.data);
-        }
-
-        async function loadAppointments() {
-            const res = await getAppointments();
-            setAllAppointments(res.data);
-            filterAppointments(res.data, selectedPatient, selectedMedico);
-        }
-
-        async function loadMedicos() {
-            const res = await getMedicos();
-            setMedicos(res.data);
-        }
-
-        async function loadConsultation() {
-            const res = await getConsultationType();
-            setConsultation(res.data);
-        }
-
-        async function loadRol() {
-            const res = await getRol();
-            setListRol(res.data);
-        }
-
         async function loadData() {
-            await Promise.all([loadAppointments(), loadPatients(), loadMedicos(), loadConsultation(), loadRol()]);
+            try {
+                const [appointmentsRes, patientsRes, medicosRes, consultationRes] = await Promise.all([
+                    getAppointments(),
+                    getPatients(),
+                    getMedicos(),
+                    getConsultationType()
+                ]);
+
+                setAllAppointments(appointmentsRes.data);
+                setPatients(patientsRes.data);
+                setMedicos(medicosRes.data);
+                setConsultation(consultationRes.data);
+                filterAppointments(appointmentsRes.data, '');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                setUpdateMessage('Error al cargar los datos. Por favor, recarga la página.');
+            }
         }
         loadData();
     }, []);
 
-    useEffect(() => {
-        filterAppointments(allAppointments, selectedPatient, selectedMedico);
-    }, [selectedPatient, selectedMedico, allAppointments]);
-
-    const filterAppointments = (appointments, patientId, medicoId) => {
-        if (patientId || medicoId) {
-            const filtered = appointments.filter((appointment) => {
-                const matchesPatient = patientId ? appointment.paciente === Number(patientId) : true;
-                const matchesMedico = medicoId ? appointment.medico === Number(medicoId) : true;
-                return matchesPatient && matchesMedico && appointment.estado === 'Programada';
-            });
-            setAppointments(filtered);
-        } else {
-            setAppointments([]); 
+    const filterAppointments = (appointments, search) => {
+        if (!search) {
+            setAppointments(appointments.filter(app => app.estado === 'Programada'));
+            return;
         }
+
+        const searchLower = search.toLowerCase();
+        const filtered = appointments.filter(appointment => {
+            const patient = patients.find(p => p.id === appointment.paciente);
+            const patientName = patient ? patient.nombre_completo.toLowerCase() : '';
+            return patientName.includes(searchLower) && appointment.estado === 'Programada';
+        });
+        setAppointments(filtered);
     };
+
+    useEffect(() => {
+        filterAppointments(allAppointments, searchTerm);
+    }, [searchTerm, allAppointments, patients]);
 
     const getPatient = (id) => {
         const patient = patients.find(p => p.id === id);
@@ -83,7 +73,6 @@ export function EditAppointments() {
     const handleCancelAppointment = async (id) => {
         try {
             const appointmentToUpdate = allAppointments.find(appointment => appointment.id === id);
-
             const updatedAppointment = {
                 ...appointmentToUpdate,
                 estado: 'Cancelada'
@@ -92,60 +81,44 @@ export function EditAppointments() {
             await updateAppointment(id, updatedAppointment);
             setUpdateMessage('Cita cancelada exitosamente!');
             setTimeout(() => setUpdateMessage(''), 3000);
+            
             const updatedAllAppointments = allAppointments.filter(appointment => appointment.id !== id);
             setAllAppointments(updatedAllAppointments);
-            filterAppointments(updatedAllAppointments, selectedPatient, selectedMedico);
+            filterAppointments(updatedAllAppointments, searchTerm);
         } catch (error) {
-            console.error('Error al cancelar la cita:', error.response?.data || error);
+            console.error('Error al cancelar la cita:', error);
             setUpdateMessage('Error al cancelar la cita. Inténtalo de nuevo.');
         }
     };
 
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-    
-        doc.setFontSize(20);
-    
-        const tableColumn = ["Paciente", "Médico", "Fecha y Hora", "Tipo de Consulta", "Estado"];
-        const tableRows = [];
-    
-        appointments.forEach(appointment => {
-            const appointmentData = [
-                getPatient(appointment.paciente),
-                getMedico(appointment.medico),
-                new Date(appointment.fecha_hora).toLocaleString(),
-                getConsultation(appointment.tipo_consulta),
-                appointment.estado
-            ];
-            tableRows.push(appointmentData);
-        });
-    
-        doc.autoTable({
-            head: [tableColumn],
-            body: tableRows,
-            startY: 30
-        });
+    const handleReschedule = (appointment) => {
+        setSelectedAppointment(appointment);
+        setNewDateTime(appointment.fecha_hora.slice(0, 16)); // Format datetime for input
+        setShowRescheduleModal(true);
+    };
 
-        let fileName = 'Historial_de_Citas_Médicas';
-        let title = 'Listado de Citas Médicas';
-        if (appointments.length > 0) {
-            const firstAppointment = appointments[0];
-            const patientName = getPatient(firstAppointment.paciente);
-            const medicoName = getMedico(firstAppointment.medico);
+    const handleRescheduleSubmit = async () => {
+        try {
+            const updatedAppointment = {
+                ...selectedAppointment,
+                fecha_hora: newDateTime
+            };
+    
+            await updateAppointment(selectedAppointment.id, updatedAppointment);
+            setUpdateMessage('Cita reprogramada exitosamente!');
             
-            if (selectedPatient) {
-                fileName += `_${patientName.replace(/\s+/g, '_')}`;
-                title += ` ${patientName}`
-            } else if (selectedMedico) {
-                fileName += `_${medicoName.replace(/\s+/g, '_')}`;
-                title += ` ${medicoName}`
-            }
+            const updatedAllAppointments = allAppointments.map(app => 
+                app.id === selectedAppointment.id ? updatedAppointment : app
+            );
+            setAllAppointments(updatedAllAppointments);
+            filterAppointments(updatedAllAppointments, searchTerm);
+            
+            setShowRescheduleModal(false);
+            setTimeout(() => setUpdateMessage(''), 3000);
+        } catch (error) {
+            console.error('Error al reprogramar la cita:', error);
+            setUpdateMessage('Error al reprogramar la cita. Inténtalo de nuevo.');
         }
-
-        fileName += '.pdf';
-        doc.text(title, 14, 22);
-        doc.save(fileName);
-        
     };
     
     return (
@@ -154,43 +127,22 @@ export function EditAppointments() {
             {updateMessage && <div className="alert alert-success text-center">{updateMessage}</div>}
 
             <div className="form-group mb-4">
-                <label htmlFor="patientSelect">Selecciona un Paciente:</label>
-                <select
+                <label htmlFor="searchInput">Buscar Paciente:</label>
+                <input
+                    type="text"
                     className="form-control"
-                    id="patientSelect"
-                    value={selectedPatient}
-                    onChange={(e) => setSelectedPatient(e.target.value)}
-                >
-                    <option value="">Elige un paciente</option>
-                    {patients.map((patient) => (
-                        <option key={patient.id} value={patient.id}>
-                            {patient.nombre_completo}
-                        </option>
-                    ))}
-                </select>
+                    id="searchInput"
+                    placeholder="Ingrese el nombre del paciente"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
             </div>
 
-            <div className="form-group mb-4">
-                <label htmlFor="medicoSelect">Selecciona un Médico:</label>
-                <select
-                    className="form-control"
-                    id="medicoSelect"
-                    value={selectedMedico}
-                    onChange={(e) => setSelectedMedico(e.target.value)}
-                >
-                    <option value="">Elige un médico</option>
-                    {medicos.map((medico) => (
-                        <option key={medico.id} value={medico.id}>
-                            {`${medico.nombres} ${medico.apellidos}`}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="table-responsive shadow-sm p-3 mb-5 bg-light rounded" id="appointments-table">
+            <div className="table-responsive shadow-sm p-3 mb-5 bg-light rounded">
                 <table className="table table-striped table-bordered table-hover">
                     <thead className="thead-dark">
                         <tr>
+                            <th>Paciente</th>
                             <th>Médico</th>
                             <th>Fecha y Hora</th>
                             <th>Tipo de Consulta</th>
@@ -202,6 +154,7 @@ export function EditAppointments() {
                         {appointments.length > 0 ? (
                             appointments.map((appointment) => (
                                 <tr key={appointment.id}>
+                                    <td>{getPatient(appointment.paciente)}</td>
                                     <td>{getMedico(appointment.medico)}</td>
                                     <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
                                     <td>{getConsultation(appointment.tipo_consulta)}</td>
@@ -211,32 +164,77 @@ export function EditAppointments() {
                                         </span>
                                     </td>
                                     <td>
-                                        {appointment.estado === 'Programada' && (
+                                        <div className="btn-group">
                                             <button 
-                                                className="btn btn-danger btn-sm" 
+                                                className="btn btn-warning btn-sm me-2"
+                                                onClick={() => handleReschedule(appointment)}
+                                            >
+                                                Reprogramar
+                                            </button>
+                                            <button 
+                                                className="btn btn-danger btn-sm"
                                                 onClick={() => handleCancelAppointment(appointment.id)}
                                             >
                                                 Cancelar
                                             </button>
-                                        )}
-                                        <button 
-                                            className="btn btn-danger btn-sm" 
-                                            onClick={exportToPDF}
-                                        >
-                                            Exportar
-                                        </button>
+                                        </div>
                                     </td>
-                                    
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" className="text-center">No hay citas programadas para este paciente o médico.</td>
+                                <td colSpan="6" className="text-center">No hay citas programadas para este paciente.</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Modal de Reprogramación */}
+            {showRescheduleModal && (
+                <div className="modal show d-block" tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Reprogramar Cita</h5>
+                                <button 
+                                    type="button" 
+                                    className="btn-close" 
+                                    onClick={() => setShowRescheduleModal(false)}
+                                />
+                            </div>
+                            <div className="modal-body">
+                                <div className="form-group">
+                                    <label>Nueva Fecha y Hora:</label>
+                                    <input
+                                        type="datetime-local"
+                                        className="form-control"
+                                        value={newDateTime}
+                                        onChange={(e) => setNewDateTime(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary" 
+                                    onClick={() => setShowRescheduleModal(false)}
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-primary"
+                                    onClick={handleRescheduleSubmit}
+                                >
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showRescheduleModal && <div className="modal-backdrop show"></div>}
         </div>
     );
 }

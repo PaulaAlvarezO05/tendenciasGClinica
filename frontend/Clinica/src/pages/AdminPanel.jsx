@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Calendar, FileText, ClipboardList, Pill } from 'lucide-react';
+import { Users, UserCog, CalendarDays, FileText, Pill, Receipt } from 'lucide-react';
 import { AuthContext } from '../api/AuthContext';
 import PanelLayout from '../components/PanelLayout';
 import ServiceCard from '../components/ServiceCard';
@@ -9,12 +9,12 @@ const AdminPanel = () => {
   const medicoName = `${name} ${lastName}`;
   
   const services = [
-    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de pacientes', link: '#' },
-    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de empleados', link: '#' },
-    { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Listado de Citas', link: '/list-appointments' },
+    { Component: ServiceCard, icon: <Users size={48} />, title: 'Listado de pacientes', link: '/list-patient' },
+    { Component: ServiceCard, icon: <UserCog  size={48} />, title: 'Listado de empleados', link: '/list-user' },
+    { Component: ServiceCard, icon: <CalendarDays  size={48} />, title: 'Listado de Citas', link: '/list-appointments' },
     { Component: ServiceCard, icon: <FileText size={48} />, title: 'Historias clínicas', link: '#' },
     { Component: ServiceCard, icon: <Pill size={40} />, title: 'Medicamentos', link: '#' },
-    { Component: ServiceCard, icon: <ClipboardList size={48} />, title: 'Facturación', link: '#' }
+    { Component: ServiceCard, icon: <Receipt  size={48} />, title: 'Facturación', link: '#' }
     
   ];
 

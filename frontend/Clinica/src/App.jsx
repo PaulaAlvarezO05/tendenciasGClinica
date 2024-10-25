@@ -10,6 +10,10 @@ import { AddAppointment } from './pages/AddAppointments';
 import { EditAppointments } from './pages/EditAppointments'
 import { ListAppointments } from './pages/ListAppointments';
 import { AddMedicalRecords } from './pages/AddMedicalRecords';
+import { ListPatients } from './pages/ListPatients';
+import { UpdatePatients } from './pages/UpdatePatients';
+import { ListUsers } from './pages/ListUsers';
+import { UpdateUsers } from './pages/updateUsers';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useContext(AuthContext);
@@ -51,7 +55,10 @@ const AppContent = () => {
       <Route path="/edit-appointments" element={<ProtectedRoute><EditAppointments rol={rol}/></ProtectedRoute>} />
       <Route path="/list-appointments" element={<ProtectedRoute><ListAppointments rol={rol}/></ProtectedRoute>}/>
       <Route path="/medical-record" element={<ProtectedRoute><AddMedicalRecords/></ProtectedRoute>}/>
-
+      <Route path="/list-patient" element={<ProtectedRoute><ListPatients/></ProtectedRoute>} />
+      <Route path="/update-patient" element={<ProtectedRoute><UpdatePatients/></ProtectedRoute>} />
+      <Route path="/list-user" element={<ProtectedRoute><ListUsers /></ProtectedRoute>} />
+      <Route path="/update-user" element={<ProtectedRoute><UpdateUsers/></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

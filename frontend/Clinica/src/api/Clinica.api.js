@@ -23,27 +23,37 @@ clinicaApi.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
+
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
-                const response = await clinicaApi.post('/token/refresh/', {}, {
-                    headers: { Authorization: `Bearer ${refreshToken}` }
-                });
+                console.log(refreshToken)
                 
+                const response = await clinicaApi.post('/token/refresh/', {
+                    refresh: refreshToken
+                });
+
+                console.log(refreshToken)
+
                 const newToken = response.data.access;
                 localStorage.setItem('token', newToken);
-                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                
                 return axios(originalRequest);
             } catch (err) {
-                console.error('Error al renovar el token', err);
-                logout();
+                console.error('Error al renovar el token', err.response ? err.response.data : err);
+                const refreshToken = localStorage.getItem('refreshToken')
+                console.log(refreshToken)
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
                 return Promise.reject(err);
             }
         }
         return Promise.reject(error);
     }
 );
+
 
 export const login = async (credentials) => {
     try {
@@ -67,6 +77,11 @@ export const getUser = async (id) => {
 // Métodos GET(Read)
 export const getAppointments = () => {
     return clinicaApi.get('/appointments/')
+}
+
+export const getAppointment = async (id) => {
+    const response = await clinicaApi.get(`/appointments/${id}/`)
+    return response.data
 }
 
 export const getPatients = () => {
@@ -148,8 +163,6 @@ export const addMedicalRecord = async (medicalRecordData) => {
     }
 };
 
-
-
 // Métodos PUT(Update)
 export const updatePatient = async (id, patientData) => {
     try {
@@ -172,10 +185,8 @@ export const updateUser = async (id, userData) => {
 };
 
 export const updateAppointment = async (id, updatedData) => {
-    console.log("updatedData", updatedData)
     try {
         const response = await clinicaApi.put(`/appointments/${id}/`, updatedData);
-        
         return response.data;
     } catch (error) {
         console.error('Error al actualizar la cita:', error.response?.data || error);

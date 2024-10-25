@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { login, getUser } from '../api/Clinica.api';
 import { jwtDecode } from 'jwt-decode';
-import { Construction } from 'lucide-react';
 
 export const AuthContext = createContext();
 
@@ -33,8 +32,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', accessToken);
         setRefreshToken(refreshToken);
         localStorage.setItem('refreshToken', refreshToken);
-        console.log("token", accessToken, refreshToken)
-        console.log("refreshToken", refreshToken)
+        
         const decodedToken = jwtDecode(accessToken);
         const userRole = decodedToken.rol;
         setRol(userRole);
