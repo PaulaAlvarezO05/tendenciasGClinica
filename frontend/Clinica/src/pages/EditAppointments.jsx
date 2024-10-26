@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getPatients, getAppointments, updateAppointment, getMedicos, getConsultationType } from '../api/Clinica.api';
+import { NavigationBar } from '../components/NavigationBar';
+import { UserSearch, CalendarClock, CalendarX } from 'lucide-react';
 
 export function EditAppointments() {
     const [patients, setPatients] = useState([]);
@@ -77,11 +79,11 @@ export function EditAppointments() {
                 ...appointmentToUpdate,
                 estado: 'Cancelada'
             };
-    
+
             await updateAppointment(id, updatedAppointment);
             setUpdateMessage('Cita cancelada exitosamente!');
             setTimeout(() => setUpdateMessage(''), 3000);
-            
+
             const updatedAllAppointments = allAppointments.filter(appointment => appointment.id !== id);
             setAllAppointments(updatedAllAppointments);
             filterAppointments(updatedAllAppointments, searchTerm);
@@ -93,7 +95,7 @@ export function EditAppointments() {
 
     const handleReschedule = (appointment) => {
         setSelectedAppointment(appointment);
-        setNewDateTime(appointment.fecha_hora.slice(0, 16)); // Format datetime for input
+        setNewDateTime(appointment.fecha_hora.slice(0, 16));
         setShowRescheduleModal(true);
     };
 
@@ -103,16 +105,16 @@ export function EditAppointments() {
                 ...selectedAppointment,
                 fecha_hora: newDateTime
             };
-    
+
             await updateAppointment(selectedAppointment.id, updatedAppointment);
             setUpdateMessage('Cita reprogramada exitosamente!');
-            
-            const updatedAllAppointments = allAppointments.map(app => 
+
+            const updatedAllAppointments = allAppointments.map(app =>
                 app.id === selectedAppointment.id ? updatedAppointment : app
             );
             setAllAppointments(updatedAllAppointments);
             filterAppointments(updatedAllAppointments, searchTerm);
-            
+
             setShowRescheduleModal(false);
             setTimeout(() => setUpdateMessage(''), 3000);
         } catch (error) {
@@ -120,121 +122,118 @@ export function EditAppointments() {
             setUpdateMessage('Error al reprogramar la cita. Inténtalo de nuevo.');
         }
     };
-    
+
     return (
-        <div className="container mt-5">
-            <h2 className="text-center mb-4">Editar Citas</h2>
-            {updateMessage && <div className="alert alert-success text-center">{updateMessage}</div>}
+        <div>
+            <NavigationBar title={"Gestión de Citas"} />
+            <div className="container mt-2">
+                {updateMessage && <div className="alert alert-success text-center">{updateMessage}</div>}
+                <div className="mb-4 input-group">
+                    <span className="input-group-text">
+                        <UserSearch size={20} />
+                    </span>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="searchInput"
+                        placeholder="Ingrese el nombre del paciente"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
 
-            <div className="form-group mb-4">
-                <label htmlFor="searchInput">Buscar Paciente:</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    id="searchInput"
-                    placeholder="Ingrese el nombre del paciente"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
 
-            <div className="table-responsive shadow-sm p-3 mb-5 bg-light rounded">
-                <table className="table table-striped table-bordered table-hover">
-                    <thead className="thead-dark">
-                        <tr>
-                            <th>Paciente</th>
-                            <th>Médico</th>
-                            <th>Fecha y Hora</th>
-                            <th>Tipo de Consulta</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {appointments.length > 0 ? (
-                            appointments.map((appointment) => (
-                                <tr key={appointment.id}>
-                                    <td>{getPatient(appointment.paciente)}</td>
-                                    <td>{getMedico(appointment.medico)}</td>
-                                    <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
-                                    <td>{getConsultation(appointment.tipo_consulta)}</td>
-                                    <td>
-                                        <span className={`badge ${appointment.estado === 'Completada' ? 'bg-success' : 'bg-warning'}`}>
-                                            {appointment.estado}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className="btn-group">
-                                            <button 
-                                                className="btn btn-warning btn-sm me-2"
-                                                onClick={() => handleReschedule(appointment)}
-                                            >
-                                                Reprogramar
-                                            </button>
-                                            <button 
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => handleCancelAppointment(appointment.id)}
-                                            >
-                                                Cancelar
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
+                <div className="table-responsive shadow-sm p-3 mb-5 bg-light rounded">
+                    <table className="table table-striped table-bordered table-hover">
+                        <thead className="thead-dark text-center">
                             <tr>
-                                <td colSpan="6" className="text-center">No hay citas programadas para este paciente.</td>
+                                <th>Paciente</th>
+                                <th>Médico</th>
+                                <th>Fecha y Hora</th>
+                                <th>Tipo de Consulta</th>
+                                <th>Acciones</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {appointments.length > 0 ? (
+                                appointments.map((appointment) => (
+                                    <tr key={appointment.id}>
+                                        <td>{getPatient(appointment.paciente)}</td>
+                                        <td>{getMedico(appointment.medico)}</td>
+                                        <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
+                                        <td>{getConsultation(appointment.tipo_consulta)}</td>
+                                        <td>
+                                            <div className="btn-group">
+                                                <button
+                                                    className="btn btn-warning btn-sm me-2"
+                                                    onClick={() => handleReschedule(appointment)}
+                                                >
+                                                    <CalendarClock/>
+                                                </button>
+                                                <button
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() => handleCancelAppointment(appointment.id)}
+                                                >
+                                                    <CalendarX/>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center">No hay citas programadas para este paciente.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
-            {/* Modal de Reprogramación */}
-            {showRescheduleModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Reprogramar Cita</h5>
-                                <button 
-                                    type="button" 
-                                    className="btn-close" 
-                                    onClick={() => setShowRescheduleModal(false)}
-                                />
-                            </div>
-                            <div className="modal-body">
-                                <div className="form-group">
-                                    <label>Nueva Fecha y Hora:</label>
-                                    <input
-                                        type="datetime-local"
-                                        className="form-control"
-                                        value={newDateTime}
-                                        onChange={(e) => setNewDateTime(e.target.value)}
+                {showRescheduleModal && (
+                    <div className="modal show d-block" tabIndex="-1">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Reprogramar Cita</h5>
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        onClick={() => setShowRescheduleModal(false)}
                                     />
                                 </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button 
-                                    type="button" 
-                                    className="btn btn-secondary" 
-                                    onClick={() => setShowRescheduleModal(false)}
-                                >
-                                    Cancelar
-                                </button>
-                                <button 
-                                    type="button" 
-                                    className="btn btn-primary"
-                                    onClick={handleRescheduleSubmit}
-                                >
-                                    Guardar Cambios
-                                </button>
+                                <div className="modal-body">
+                                    <div className="form-group">
+                                        <label>Nueva Fecha y Hora:</label>
+                                        <input
+                                            type="datetime-local"
+                                            className="form-control"
+                                            value={newDateTime}
+                                            onChange={(e) => setNewDateTime(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="modal-footer">
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowRescheduleModal(false)}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={handleRescheduleSubmit}
+                                    >
+                                        Guardar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-            {showRescheduleModal && <div className="modal-backdrop show"></div>}
+                )}
+                {showRescheduleModal && <div className="modal-backdrop show"></div>}
+            </div>
         </div>
     );
 }

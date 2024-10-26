@@ -19,6 +19,7 @@ class MedicalRecord(models.Model):
         blank=True
     )
     fecha_registro = models.DateTimeField("Fecha de Registro")
+    motivo_consulta = models.TextField("Motivo de consulta")
     descripcion_diagnostico = models.TextField("Descripción del diagnóstico")
 
     def __str__(self):

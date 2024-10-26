@@ -4,7 +4,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useNavigate } from 'react-router-dom';
 import { NavigationBar } from '../components/NavigationBar';
-import { Search, Download } from 'lucide-react';
+import { UserSearch, Stethoscope, Download } from 'lucide-react';
 
 export function ListAppointments({ rol }) {
     const [allAppointments, setAllAppointments] = useState([]);
@@ -99,7 +99,7 @@ export function ListAppointments({ rol }) {
             startY: 30
         });
 
-        const fileName = appointments.length === 1 
+        const fileName = appointments.length === 1
             ? `Cita_${getPatient(appointments[0].paciente)}_${new Date(appointments[0].fecha_hora).toLocaleDateString()}.pdf`
             : 'Historial_de_Citas_Médicas.pdf';
 
@@ -109,41 +109,63 @@ export function ListAppointments({ rol }) {
     const handleAddMedicalRecord = (patientId, medicoId, appointmentId) => {
         navigate('/medical-record', { state: { patientId, medicoId, appointmentId } });
     };
-    
+
     return (
-        <div><NavigationBar title={"Historial de Citas Médicas"}/>
+        <div><NavigationBar title={"Historial de Citas Médicas"} />
             <div className="container mt-4">
+
                 {rol !== 'Médico' && (
                     <div className="row mb-4">
-                        <div className="col-md-6">
+                        <div className="col-md-5">
                             <div className="form-group">
-                                <label htmlFor="searchPatient">Buscar Paciente:</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    id="searchPatient"
-                                    value={searchPatient}
-                                    onChange={(e) => setSearchPatient(e.target.value)}
-                                    placeholder="Ingrese nombre del paciente"
-                                />
+                                <label htmlFor="searchPatient" className='fw-bold'>Paciente:</label>
+                                <div className="input-group">
+                                    <span className="input-group-text">
+                                        <UserSearch size={20} />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="searchPatient"
+                                        value={searchPatient}
+                                        onChange={(e) => setSearchPatient(e.target.value)}
+                                        placeholder="Buscar paciente..."
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-5">
                             <div className="form-group">
-                                <label htmlFor="searchMedico">Buscar Médico:</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    id="searchMedico"
-                                    value={searchMedico}
-                                    onChange={(e) => setSearchMedico(e.target.value)}
-                                    placeholder="Ingrese nombre del médico"
-                                />
+                                <label htmlFor="searchMedico" className='fw-bold'>Médico:</label>
+                                <div className="input-group">
+                                    <span className="input-group-text">
+                                        <Stethoscope size={20} />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="searchMedico"
+                                        value={searchMedico}
+                                        onChange={(e) => setSearchMedico(e.target.value)}
+                                        placeholder="Buscar médico..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-2">
+                            <div className="form-group">
+                                <label style={{ color: '#9FC2AE' }}>Exportar</label>
+                                <button
+                                    className="btn btn-primary w-100"
+                                    onClick={() => exportToPDF()}
+                                >
+                                    <Download className="me-2" size={20} />Exportar PDF
+                                </button>
                             </div>
                         </div>
                     </div>
                 )}
-        
+
                 <div className="table-responsive shadow-sm p-3 mb-4 bg-white rounded">
                     <table className="table table-striped table-bordered table-hover">
                         <thead className="thead-dark">
@@ -174,25 +196,24 @@ export function ListAppointments({ rol }) {
                                     <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
                                     {rol === 'Médico' ? (
                                         <td>
-                                            <button 
-                                                className={`btn ${
-                                                    appointment.estado === 'Completada' 
+                                            <button
+                                                className={`btn ${appointment.estado === 'Completada'
                                                         ? 'btn-success'
-                                                        : appointment.estado === 'Programada' 
+                                                        : appointment.estado === 'Programada'
                                                             ? 'btn-warning'
                                                             : 'btn-danger'
-                                                }`}
+                                                    }`}
                                                 onClick={() => handleAddMedicalRecord(
-                                                    appointment.paciente, 
+                                                    appointment.paciente,
                                                     appointment.medico,
                                                     appointment.id
                                                 )}
                                                 disabled={appointment.estado === 'Completada' || appointment.estado === 'Cancelada'}
                                             >
-                                                {appointment.estado === 'Completada' 
-                                                    ? 'Completada' 
-                                                    : appointment.estado === 'Cancelada' 
-                                                        ? 'Cancelada' 
+                                                {appointment.estado === 'Completada'
+                                                    ? 'Completada'
+                                                    : appointment.estado === 'Cancelada'
+                                                        ? 'Cancelada'
                                                         : 'Gestionar'}
                                             </button>
                                         </td>
@@ -200,18 +221,17 @@ export function ListAppointments({ rol }) {
                                         <>
                                             <td>{getConsultation(appointment.tipo_consulta)}</td>
                                             <td>
-                                                <span className={`badge ${
-                                                    appointment.estado === 'Completada' 
-                                                        ? 'bg-success' 
-                                                        : appointment.estado === 'Programada' 
-                                                            ? 'bg-warning' 
+                                                <span className={`badge ${appointment.estado === 'Completada'
+                                                        ? 'bg-success'
+                                                        : appointment.estado === 'Programada'
+                                                            ? 'bg-warning'
                                                             : 'bg-danger'
-                                                }`}>
+                                                    }`}>
                                                     {appointment.estado}
                                                 </span>
                                             </td>
                                             <td className="text-center">
-                                                <button 
+                                                <button
                                                     className="btn btn-info btn-sm"
                                                     onClick={() => exportToPDF([appointment])}
                                                 >
@@ -225,18 +245,8 @@ export function ListAppointments({ rol }) {
                         </tbody>
                     </table>
                 </div>
-                {rol !== 'Médico' && filteredAppointments.length > 0 && (
-                    <div className="text-end mb-3">
-                        <button 
-                            className="btn btn-primary btn-lg"
-                            onClick={() => exportToPDF()}
-                        >
-                            <i className="fas fa-file-export"></i> Exportar listado
-                        </button>
-                    </div>
-                )}
+
             </div>
         </div>
     );
-    
 }

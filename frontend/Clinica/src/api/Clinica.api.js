@@ -54,7 +54,6 @@ clinicaApi.interceptors.response.use(
     }
 );
 
-
 export const login = async (credentials) => {
     try {
         const response = await clinicaApi.post('/token/', credentials);
@@ -107,6 +106,10 @@ export const getRol = () => {
 export const getMedicalSpecialties = () => {
     return clinicaApi.get('/medicalSpecialties/')
 }
+
+export const getMedicalRecords = () => {
+    return clinicaApi.get('/medicalRecords/')
+} 
 
 export const getMedicationInventory = () => {
     return clinicaApi.get('/medicationInventory/')
