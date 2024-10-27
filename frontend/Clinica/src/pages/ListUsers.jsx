@@ -11,7 +11,7 @@ export function ListUsers() {
     const [listSpecialty, setListSpecialty] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedRol, setSelectedRol] = useState(''); // Corregido el nombre de la variable
+    const [selectedRol, setSelectedRol] = useState('');
     const [selectedSpecialty, setSelectedSpecialty] = useState('');
 
     useEffect(() => {
@@ -54,7 +54,7 @@ export function ListUsers() {
     }, [searchTerm, selectedRol, selectedSpecialty, users]);
 
     const filterUsers = () => {
-        let filtered = [...users]; // Crear una copia del array
+        let filtered = [...users];
         
         if (searchTerm) {
             filtered = filtered.filter(user => 

@@ -29,4 +29,5 @@ class Appointment(models.Model):
   estado = models.CharField(max_length=20, default='Programada')
 
   def __str__(self):
-    return f"Médico: {self.medico.nombres} {self.medico.apellidos} Fecha: {self.fecha_hora}"
+    medico_nombre = f"{self.medico.nombres} {self.medico.apellidos}" if self.medico else "Sin médico"
+    return f"Médico: {medico_nombre} Fecha: {self.fecha_hora}"

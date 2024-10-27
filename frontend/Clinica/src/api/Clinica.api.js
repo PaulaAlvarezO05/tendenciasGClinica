@@ -109,6 +109,10 @@ export const getMedicalSpecialties = () => {
 
 export const getMedicalRecords = () => {
     return clinicaApi.get('/medicalRecords/')
+}
+
+export const getPrescripcions = () => {
+    return clinicaApi.get('/prescriptions/')
 } 
 
 export const getMedicationInventory = () => {

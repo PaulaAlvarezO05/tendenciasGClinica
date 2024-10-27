@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { CalendarPlus2, CalendarDays, Calendar, ClipboardList, Pill } from 'lucide-react';
+import { CalendarPlus2, Calendar, ClipboardList } from 'lucide-react';
 import { AuthContext } from '../api/AuthContext';
 import PanelLayout from '../components/PanelLayout';
 import ServiceCard from '../components/ServiceCard';

@@ -3,7 +3,6 @@ import { addUser, getMedicalSpecialties, getRol } from '../api/Clinica.api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export function AddUser() {
-    
     const [nombres, setNombres] = useState('');
     const [apellidos, setApellidos] = useState('');
     const [telefono, setTelefono] = useState('');
@@ -14,13 +13,10 @@ export function AddUser() {
     const [username, setUsername] = useState(''); 
     const [email, setEmail] = useState(''); 
     const [password, setPassword] = useState(''); 
-
-  
     const [listEspecialidades, setListEspecialidades] = useState([]);
     const [listRoles, setListRoles] = useState([]);
     const [successMessage, setSuccessMessage] = useState('');
 
-    
     useEffect(() => {
         const loadEspecialidades = async () => {
             try {
@@ -51,8 +47,7 @@ export function AddUser() {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-       
+        
         const newUser = {
             username,
             email,

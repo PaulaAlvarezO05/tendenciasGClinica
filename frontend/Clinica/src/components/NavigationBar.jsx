@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, ArrowLeft, ArrowRight } from 'lucide-react';
+import { LogOut, ArrowLeft } from 'lucide-react';
 import { AuthContext } from '../api/AuthContext';
 
 export function NavigationBar({title}) {

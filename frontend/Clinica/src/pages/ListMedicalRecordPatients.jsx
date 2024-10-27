@@ -16,16 +16,16 @@ export function ListMedicalRecordPatients() {
     }, []);
 
     const handleMedicalRecordPatient = (patient) => {
-        navigate('/medical-record-patient', { state: { patient } });
+        navigate('/general-medical-records', { state: { patient } });
     };
 
     return (
         <div>
             <NavigationBar title={"Listado de Pacientes"} />
             <div className="container mt-2">
-                <div className="table-responsive shadow-sm p-3 mb-4 bg-white rounded patients-table">
+                <div className="table-responsive shadow-sm p-3 mb-4 bg-white rounded">
                     <table className="table table-striped table-bordered table-hover">
-                        <thead className="thead-dark text-center">
+                        <thead className="text-center">
                             <tr>
                                 <th>Nombre Completo</th>
                                 <th>Correo electrónico</th>
