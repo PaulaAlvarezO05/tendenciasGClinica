@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { CalendarPlus2, Calendar, ClipboardList } from 'lucide-react';
+import { CalendarPlus2, CalendarDays, Calendar, ClipboardList, Pill } from 'lucide-react';
 import { AuthContext } from '../api/AuthContext';
 import PanelLayout from '../components/PanelLayout';
 import ServiceCard from '../components/ServiceCard';
@@ -11,7 +11,7 @@ const AsistentePanel = () => {
   const services = [
     { Component: ServiceCard, icon: <CalendarPlus2 size={48} />, title: 'Agendar Citas', link: '/add-appointment' },
     { Component: ServiceCard, icon: <Calendar size={48} />, title: 'Gestionar Citas', link: '/edit-appointments' },
-    { Component: ServiceCard, icon: <ClipboardList size={48} />, title: 'Facturación', link: '#' }
+    { Component: ServiceCard, icon: <ClipboardList size={48} />, title: 'Facturación', link: '/billing' }
   ];
 
   return <PanelLayout userType="" userName={medicoName} services={services} />;

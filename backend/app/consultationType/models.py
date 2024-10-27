@@ -10,6 +10,11 @@ class ConsultationType(models.Model):
         null=True,
         blank=True
     )
-    
+    precio_base = models.DecimalField(
+        "Precio base", 
+        max_digits=10, 
+        decimal_places=2,
+        default=0
+    )
     def __str__(self):
         return self.nombre

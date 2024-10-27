@@ -119,6 +119,10 @@ export const getMedicationInventory = () => {
     return clinicaApi.get('/medicationInventory/')
 } 
 
+export const getBillings = async () => {
+    return clinicaApi.get('/billing/');
+}
+
 // Métodos POST(Create)
 export const addPatient = async (patientData) => {
     try {
@@ -166,6 +170,16 @@ export const addMedicalRecord = async (medicalRecordData) => {
         return response.data;
     } catch (error) {
         console.error('Error al registrar la historia clínica:', error);
+        throw error;
+    }
+};
+
+export const addBilling = async (billingData) => {
+    try {
+        const response = await clinicaApi.post('/billing/', billingData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear la factura:', error);
         throw error;
     }
 };

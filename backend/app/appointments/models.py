@@ -1,7 +1,9 @@
 from django.db import models
 from ..patients.models import Patient
 from ..users.models import User
+from ..billing.models import Billing
 from ..consultationType.models import ConsultationType
+
 
 class Appointment(models.Model):
   paciente = models.ForeignKey(
@@ -27,7 +29,14 @@ class Appointment(models.Model):
      null=True
   )
   estado = models.CharField(max_length=20, default='Programada')
+  estado_pago = models.CharField(max_length=20, default='Pendiente')
+  
+  billing = models.OneToOneField(
+     Billing, 
+     on_delete=models.SET_NULL, 
+     null=True, 
+     blank=True)
 
   def __str__(self):
-    medico_nombre = f"{self.medico.nombres} {self.medico.apellidos}" if self.medico else "Sin médico"
-    return f"Médico: {medico_nombre} Fecha: {self.fecha_hora}"
+    return f"Médico: {self.medico.nombres} {self.medico.apellidos} Fecha: {self.fecha_hora}"
+ 

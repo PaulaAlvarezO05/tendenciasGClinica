@@ -15,6 +15,7 @@ class Patient(models.Model):
     numero_poliza=models.IntegerField('Número de Poliza')
     estado_poliza = models.CharField('Estado de Póliza', max_length=20)
     vigencia_poliza=models.DateField('Vigencia de Poliza')
-    
+    ibc = models.IntegerField('Ingreso base de cotización', null=True, blank=True)
+
     def __str__(self):
         return f"{self.nombre_completo} "

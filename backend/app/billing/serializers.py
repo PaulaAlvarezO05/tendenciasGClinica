@@ -1,8 +1,9 @@
-from rest_framework import serializers 
+from rest_framework import serializers
 from .models import * 
 
-class BillingSerializer(serializers.ModelSerializer): 
+class BillingSerializer(serializers.ModelSerializer):
+    paciente_nombre = serializers.CharField(source='paciente.nombre_completo', read_only=True)
 
-    class Meta: 
+    class Meta:
         model = Billing
-        fields = ('__all__')
+        fields = ('id', 'paciente', 'fecha', 'monto', 'detalles', 'estado_pago', 'paciente_nombre')

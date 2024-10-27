@@ -17,6 +17,11 @@ import { UpdateUsers } from './pages/updateUsers';
 import { ListMedicalRecordPatients } from './pages/ListMedicalRecordPatients'
 import { GeneralMedicalRecords } from './pages/GeneralMedicalRecords'
 import { DetalleMedicalRecords } from './pages/DetalleMedicalRecords';
+import {ListBillings} from './pages/Billing';
+import { ManagePatients} from './pages/ManagePatients';
+import { AddPatient } from './pages/AddPatient';
+import { ManageUsers } from './pages/ManageUsers';
+import { AddUser} from './pages/AddUsers';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useContext(AuthContext);
@@ -65,6 +70,11 @@ const AppContent = () => {
       <Route path="/list-medical-records-patients" element={<ProtectedRoute><ListMedicalRecordPatients/></ProtectedRoute>} />
       <Route path="/general-medical-records" element={<ProtectedRoute><GeneralMedicalRecords/></ProtectedRoute>} />
       <Route path="/list-medical-records" element={<ProtectedRoute><DetalleMedicalRecords/></ProtectedRoute>} />
+      <Route path="/billing" element={<ProtectedRoute><ListBillings/></ProtectedRoute>} />
+      <Route path="/manage-patients" element={<ProtectedRoute><ManagePatients/></ProtectedRoute>} />
+      <Route path="/add-patient" element={<ProtectedRoute><AddPatient/></ProtectedRoute>} />
+      <Route path="/manage-user" element={<ProtectedRoute><ManageUsers/></ProtectedRoute>} />
+      <Route path="/add-user" element={<ProtectedRoute><AddUser/></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

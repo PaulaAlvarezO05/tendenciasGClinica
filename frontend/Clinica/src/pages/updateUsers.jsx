@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUsers, updateUser, deleteUser, getRol, getMedicalSpecialties } from '../api/Clinica.api';
+import { NavigationBar } from '../components/NavigationBar';
+import { Trash2, Search } from 'lucide-react';
 
 export function UpdateUsers() {
     const [users, setUsers] = useState([]);
@@ -18,6 +20,7 @@ export function UpdateUsers() {
         especialidad: '', 
     });
     const [updateMessage, setUpdateMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const loadUsers = async () => {
@@ -51,6 +54,10 @@ export function UpdateUsers() {
         loadRoles();
         loadEspecialidades();
     }, []);
+
+    const filteredUsers = users.filter(user =>
+        user.username.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleEditClick = (user) => {
         setSelectedUser(user);
@@ -123,7 +130,24 @@ export function UpdateUsers() {
 
     return (
         <div className="container mt-4">
-            <h2 className="text-center mb-4">Listado de Usuarios</h2>
+            <NavigationBar title={"Actualizar Empleado"} />
+            <div className="row mb-4">
+                <div className="col-md-6">
+                    <div className="input-group">
+                        <span className="input-group-text">
+                            <Search size={20} />
+                        </span>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Buscar usuario por nombre..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
             <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded" id="users-table">
                 <table className="table table-striped table-bordered table-hover">
                     <thead className="thead-dark">
@@ -134,23 +158,21 @@ export function UpdateUsers() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.length > 0 ? (
-                            users.map(user => (
+                        {filteredUsers.length > 0 ? (
+                            filteredUsers.map(user => (
                                 <tr key={user.id}>
                                     <td>{user.id}</td>
                                     <td>{user.username}</td>
                                     <td>
                                         <button 
-                                            style={{ backgroundColor: '#7dcea0', color: 'white', marginRight: '10px' }} 
-                                            onClick={() => handleEditClick(user)}
-                                        >
-                                            Actualizar
+                                            className="btn btn-outline-success btn-sm me-2"
+                                            onClick={() => handleEditClick(user)}>
+                                            <span>Actualizar</span>
                                         </button>
                                         <button 
-                                            style={{ backgroundColor: '#e74c3c', color: 'white' }} 
-                                            onClick={() => handleDeleteClick(user.id)}
-                                        >
-                                            Eliminar
+                                            className="btn btn-outline-danger btn-sm"
+                                            onClick={() => handleDeleteClick(user.id)}>
+                                            <Trash2 />
                                         </button>
                                     </td>
                                 </tr>
@@ -168,27 +190,29 @@ export function UpdateUsers() {
                 <div className="mt-4">
                     <h3>Editar Usuario</h3>
                     <form onSubmit={handleFormSubmit}>
-                        <div className="mb-3">
-                            <label className="form-label">Email</label>
-                            <input 
-                                type="email" 
-                                className="form-control" 
-                                name="email" 
-                                value={formData.email} 
-                                onChange={handleInputChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Nombres</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                name="nombres" 
-                                value={formData.nombres} 
-                                onChange={handleInputChange} 
-                                required 
-                            />
+                        <div className="row">
+                            <div className="col-md-6 mb-3">
+                                <label className="form-label">Email</label>
+                                <input 
+                                    type="email" 
+                                    className="form-control" 
+                                    name="email" 
+                                    value={formData.email} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                />
+                            </div>
+                            <div className="col-md-6 mb-3">
+                                <label className="form-label">Nombres</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    name="nombres" 
+                                    value={formData.nombres} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                />
+                            </div>
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Apellidos</label>
@@ -234,7 +258,7 @@ export function UpdateUsers() {
                                 required 
                             />
                         </div>
-                        <div className="form-group mb-3">
+                        <div className="mb-3">
                             <label htmlFor="rol">Rol</label>
                             <select
                                 className="form-select"
@@ -252,7 +276,7 @@ export function UpdateUsers() {
                                 ))}
                             </select>
                         </div>
-                        <div className="form-group mb-3">
+                        <div className="mb-3">
                             <label htmlFor="especialidad">Especialidad Médica</label>
                             <select
                                 className="form-select"
@@ -269,12 +293,15 @@ export function UpdateUsers() {
                                 ))}
                             </select>
                         </div>
+
                         <button type="submit" className="btn btn-primary">Actualizar Usuario</button>
-                        <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancelar</button>
+                        <button type="button" className="btn btn-secondary ms-2" onClick={handleCancelEdit}>Cancelar</button>
                     </form>
-                    {updateMessage && <div className="alert alert-success mt-3">{updateMessage}</div>}
+                    {updateMessage && <div className="alert alert-info mt-3">{updateMessage}</div>}
                 </div>
             )}
         </div>
     );
 }
+
+export default UpdateUsers;

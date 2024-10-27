@@ -9,12 +9,12 @@ const AdminPanel = () => {
   const medicoName = `${name} ${lastName}`;
   
   const services = [
-    { Component: ServiceCard, icon: <Users size={48} />, title: 'Listado de pacientes', link: '/list-patient' },
-    { Component: ServiceCard, icon: <UserCog  size={48} />, title: 'Listado de empleados', link: '/list-user' },
+    { Component: ServiceCard, icon: <Users size={48} />, title: 'Gestión Pacientes', link: '/manage-patients' },
+    { Component: ServiceCard, icon: <UserCog  size={48} />, title: 'Gestión de empleados', link: '/manage-user' },
     { Component: ServiceCard, icon: <CalendarDays  size={48} />, title: 'Listado de Citas', link: '/list-appointments' },
     { Component: ServiceCard, icon: <FileText size={48} />, title: 'Historias clínicas', link: '/list-medical-records-patients' },
     { Component: ServiceCard, icon: <Pill size={40} />, title: 'Medicamentos', link: '#' },
-    { Component: ServiceCard, icon: <Receipt  size={48} />, title: 'Facturación', link: '#' }
+    { Component: ServiceCard, icon: <Receipt  size={48} />, title: 'Facturación', link: '/billing' }
     
   ];
 
