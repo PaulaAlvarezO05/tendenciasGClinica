@@ -134,6 +134,16 @@ export const addPatient = async (patientData) => {
     }
 };
 
+export const addMedicationInv = async (medicationInventoryData) => {
+    try {
+        const response = await clinicaApi.post('/medicationInventory/', medicationInventoryData);
+        return response.data; 
+    } catch (error) {
+        console.error('Error al agregar el medicamento:', error);
+        throw error;
+    }
+};
+
 export const addAppointment = async (appointmentData) => {
     try {
         const response = await clinicaApi.post('/appointments/', appointmentData);
@@ -195,6 +205,16 @@ export const updatePatient = async (id, patientData) => {
     }
 };
 
+export const updateMedication = async (id, medicationData) => {
+    try {
+        const response = await clinicaApi.put(`/medicationInventory/${id}/`, medicationData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al actualizar el medicamento:', error.response?.data || error);
+        throw error;
+    }
+};
+
 export const updateUser = async (id, userData) => {
     try {
         const response = await clinicaApi.put(`/users/${id}/`, userData);
@@ -222,6 +242,16 @@ export const deletePatient = async (id) => {
         return response.data;
     } catch (error) {
         console.error('Error al eliminar el paciente:', error);
+        throw error;
+    }
+};
+
+export const deleteMedication = async (id) => {
+    try {
+        const response = await clinicaApi.delete(`/medicationInventory/${id}/`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al eliminar el Medicamento:', error);
         throw error;
     }
 };

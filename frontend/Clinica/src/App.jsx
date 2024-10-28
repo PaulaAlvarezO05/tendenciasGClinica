@@ -22,6 +22,7 @@ import { ManagePatients} from './pages/ManagePatients';
 import { AddPatient } from './pages/AddPatient';
 import { ManageUsers } from './pages/ManageUsers';
 import { AddUser} from './pages/AddUsers';
+import  MedicationInventory  from './pages/Medication';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useContext(AuthContext);
@@ -75,6 +76,7 @@ const AppContent = () => {
       <Route path="/add-patient" element={<ProtectedRoute><AddPatient/></ProtectedRoute>} />
       <Route path="/manage-user" element={<ProtectedRoute><ManageUsers/></ProtectedRoute>} />
       <Route path="/add-user" element={<ProtectedRoute><AddUser/></ProtectedRoute>} />
+      <Route path="/medication" element={<ProtectedRoute><MedicationInventory/></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

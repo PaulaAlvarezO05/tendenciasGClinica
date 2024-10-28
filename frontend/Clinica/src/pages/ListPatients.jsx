@@ -140,10 +140,10 @@ export function ListPatients() {
                                     <td className="text-center">{patient.estado_poliza}</td>
                                     <td className="text-center">
                                         <button
-                                            className="btn btn-success btn-sm"
+                                            className="btn btn-info btn-sm"
                                             onClick={() => exportToPDF([patient])}
                                         >
-                                            <i className="fas fa-file-export"></i> <Download />
+                                             <Download />
                                         </button>
                                     </td>
                                 </tr>

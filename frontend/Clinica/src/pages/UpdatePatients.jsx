@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getPatients, updatePatient, deletePatient } from '../api/Clinica.api';
 import { NavigationBar } from '../components/NavigationBar';
-import { Trash2, Search } from 'lucide-react';
+import { Trash2, Search, Edit2 } from 'lucide-react';
 
 export function UpdatePatients() {
     const [patients, setPatients] = useState([]);
@@ -151,9 +151,9 @@ export function UpdatePatients() {
                                     <td>{patient.nombre_completo}</td>
                                     <td>
                                         <button 
-                                            className="btn btn-outline-success btn-sm me-2"
+                                            className="btn btn-sm btn-outline-primary me-2"
                                             onClick={() => handleEditClick(patient)}>
-                                            <span>Actualizar</span>
+                                            <span><Edit2 className="h-4 w-4" /></span>
                                         </button>
                                         <button 
                                             className="btn btn-outline-danger btn-sm"

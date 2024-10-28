@@ -13,7 +13,7 @@ const AdminPanel = () => {
     { Component: ServiceCard, icon: <UserCog  size={48} />, title: 'Gestión de empleados', link: '/manage-user' },
     { Component: ServiceCard, icon: <CalendarDays  size={48} />, title: 'Listado de Citas', link: '/list-appointments' },
     { Component: ServiceCard, icon: <FileText size={48} />, title: 'Historias clínicas', link: '/list-medical-records-patients' },
-    { Component: ServiceCard, icon: <Pill size={40} />, title: 'Medicamentos', link: '#' },
+    { Component: ServiceCard, icon: <Pill size={40} />, title: 'Medicamentos', link: '/medication' },
     { Component: ServiceCard, icon: <Receipt  size={48} />, title: 'Facturación', link: '/billing' }
     
   ];

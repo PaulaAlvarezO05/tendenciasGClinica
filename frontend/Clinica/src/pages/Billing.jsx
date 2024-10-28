@@ -128,7 +128,7 @@ export function ListBillings() {
                                     <td>{billing.estado_pago}</td>
                                     <td className="text-center">
                                         <button
-                                            className="btn btn-success btn-sm"
+                                            className="btn btn-info btn-sm"
                                             onClick={() => exportToPDF(billing)}
                                         >
                                             <Download />

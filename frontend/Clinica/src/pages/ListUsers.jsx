@@ -15,36 +15,20 @@ export function ListUsers() {
     const [selectedSpecialty, setSelectedSpecialty] = useState('');
 
     useEffect(() => {
-        async function loadUsers() {
-            try {
-                const res = await getUsers();
-                setUsers(res.data);
-                setFilteredUsers(res.data);
-            } catch (error) {
-                console.error("Error al cargar usuarios:", error);
-            }
-        }
-        
-        async function loadRol() {
-            try {
-                const res = await getRol();
-                setListRol(res.data);
-            } catch (error) {
-                console.error("Error al cargar roles:", error);
-            }
-        }
-        
-        async function loadSpecialty() {
-            try {
-                const res = await getMedicalSpecialties();
-                setListSpecialty(res.data);
-            } catch (error) {
-                console.error("Error al cargar especialidades:", error);
-            }
-        }
-        
         async function loadData() {
-            await Promise.all([loadUsers(), loadRol(), loadSpecialty()]);
+            try {
+                const [userRes, rolRes, specialtyRes] = await Promise.all([
+                    getUsers(),
+                    getRol(),
+                    getMedicalSpecialties(),
+                ]);
+                setUsers(userRes.data);
+                setListRol(rolRes.data);
+                setListSpecialty(specialtyRes.data);
+                setFilteredUsers(userRes.data);
+            } catch (error) {
+                console.error("Error al cargar datos:", error);
+            }
         }
         loadData();
     }, []);
@@ -87,13 +71,16 @@ export function ListUsers() {
         return specialty ? specialty.nombre : '-';
     };
 
-    const exportToPDF = () => {
+    const exportToPDF = (userData) => {
         const doc = new jsPDF();
+        const title = userData.length === 1 
+            ? `Ficha de Usuario: ${userData[0].nombres} ${userData[0].apellidos}`
+            : 'Listado de Usuarios';
         doc.setFontSize(18);
-        doc.text('Listado de Usuarios', 14, 22);
+        doc.text(title, 14, 22);
 
         const tableColumn = ["Nombre", "Apellidos", "Dirección", "Rol", "Email", "Teléfono", "Especialidad"];
-        const tableRows = filteredUsers.map(user => [
+        const tableRows = userData.map(user => [
             user.nombres,
             user.apellidos,
             user.direccion,
@@ -109,7 +96,6 @@ export function ListUsers() {
             startY: 30,
             headStyles: { fontSize: 7 },
             bodyStyles: { fontSize: 7 },
-            styles: { cellPadding: 1 },
             columnStyles: {
                 0: { cellWidth: 25 },
                 1: { cellWidth: 25 },
@@ -122,7 +108,11 @@ export function ListUsers() {
             theme: 'striped'
         });
 
-        doc.save('Listado_de_Usuarios.pdf');
+        const fileName = userData.length === 1 
+            ? `Usuario_${userData[0].nombres}_${userData[0].apellidos}.pdf`
+            : 'Listado_de_Usuarios.pdf';
+
+        doc.save(fileName);
     };
 
     return (
@@ -130,7 +120,7 @@ export function ListUsers() {
             <NavigationBar title={"Listado de Empleados"} />
             <div className="container-fluid mt-4">
                 <div className="row mb-4">
-                    <div className="col-md-4">
+                    <div className="col-md-6">
                         <div className="input-group">
                             <span className="input-group-text">
                                 <Search size={20} />
@@ -177,20 +167,11 @@ export function ListUsers() {
                             </select>
                         </div>
                     )}
-                    <div className="col-md-2">
-                        <button 
-                            className="btn btn-primary w-100"
-                            onClick={exportToPDF}
-                        >
-                            <Download className="me-2" size={20} />
-                            Exportar PDF
-                        </button>
-                    </div>
                 </div>
 
                 <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded">
                     <table className="table table-striped table-bordered table-hover">
-                        <thead className="thead-dark">
+                        <thead className="thead-dark text-center">
                             <tr>
                                 <th>Nombre</th>
                                 <th>Apellidos</th>
@@ -199,6 +180,7 @@ export function ListUsers() {
                                 <th>Email</th>
                                 <th>Teléfono</th>
                                 <th>Especialidad</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -211,6 +193,14 @@ export function ListUsers() {
                                     <td>{user.email}</td>
                                     <td>{user.telefono}</td>
                                     <td>{getSpeciality(user.especialidad)}</td>
+                                    <td className="text-center">
+                                        <button
+                                            className="btn btn-info btn-sm"
+                                            onClick={() => exportToPDF([user])}
+                                        >
+                                             <Download />
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

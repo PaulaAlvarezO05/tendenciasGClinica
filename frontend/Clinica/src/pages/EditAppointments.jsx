@@ -105,7 +105,7 @@ export function EditAppointments() {
     
     const handlePayment = (appointment) => {
         const patie = getPatient(appointment.paciente);
-        console.log('Paciente:', patie); // Verifica el nombre del paciente
+        console.log('Paciente:', patie); 
         if (!patie.nombre) {
             console.error(`Paciente con ID ${appointment.paciente} no encontrado.`);
         }
@@ -123,7 +123,7 @@ export function EditAppointments() {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handlePaymentSubmit = async () => {
-        if (isProcessing) return; // Evita múltiples clics
+        if (isProcessing) return; 
         setIsProcessing(true);
 
         try {
@@ -137,7 +137,6 @@ export function EditAppointments() {
 
             await updateAppointment(selectedAppointment.id, updatedAppointment);
 
-            // Crear la factura
             const patie = getPatient(selectedAppointment.paciente);
             const consulta = getConsultation(selectedAppointment.tipo_consulta);
             const billingData = {
@@ -150,10 +149,8 @@ export function EditAppointments() {
 
             await addBilling(billingData);
 
-            // Mensaje de éxito
             setUpdateMessage('¡Pago procesado y factura creada exitosamente!');
 
-            // Actualizar citas
             const updatedAllAppointments = allAppointments.map(app =>
                 app.id === selectedAppointment.id ? updatedAppointment : app
             );
@@ -237,8 +234,7 @@ export function EditAppointments() {
         }
     };
   
-    
-    // Función para exportar a PDF
+
 const exportToPDF = (appointment) => {
     const doc = new jsPDF('');
 
@@ -249,12 +245,10 @@ const exportToPDF = (appointment) => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
 
-    // Obtener datos de consulta y paciente
     const consulta = getConsultation(appointment.tipo_consulta);
     const patie = getPatient(appointment.paciente);
     const paymentAmount = calculatePayment(patie.ibc, consulta.precio_base).toFixed(2);
 
-    // Configuración de la tabla en el PDF
     const tableColumn = [
         "Descripción",
         "Valor"
@@ -293,14 +287,12 @@ const exportToPDF = (appointment) => {
     doc.save(`Factura_${appointment.id}.pdf`);
 };
 
-// Función para manejar la descarga de factura y verificar el ID de la cita
 const handleDownloadInvoice = (id) => {
     if (!allAppointments || allAppointments.length === 0) {
         console.error('No se han cargado citas o la lista de citas está vacía');
         return;
     }
 
-    // Buscar el objeto appointment por ID en allAppointments
     const appointment = allAppointments.find(app => app.id === id);
     
     if (appointment) {
