@@ -36,7 +36,7 @@ export function AddAppointment() {
                 setListConsultation(consultationRes.data);
                 setListRol(rolRes.data);
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('Error al cargar los datos:', error);
             }
         }
         loadData();

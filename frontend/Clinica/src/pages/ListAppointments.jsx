@@ -32,7 +32,7 @@ export function ListAppointments({ rol }) {
                 setMedicos(medicosRes.data);
                 setConsultation(consultationRes.data);
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('Error al cargar los datos:', error);
             }
         }
         loadData();

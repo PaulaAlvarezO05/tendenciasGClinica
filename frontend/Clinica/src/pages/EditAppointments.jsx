@@ -341,8 +341,6 @@ const handleDownloadInvoice = (id) => {
         appointments.map((appointment) => {
             const consulta = getConsultation(appointment.tipo_consulta);
             const patie = getPatient(appointment.paciente);
-            console.log('Consulta:', JSON.stringify(consulta, null, 2));
-
             
             const price = typeof consulta.precio_base === 'number' && !isNaN(consulta.precio_base) 
                 ? consulta.precio_base.toFixed(2) 
