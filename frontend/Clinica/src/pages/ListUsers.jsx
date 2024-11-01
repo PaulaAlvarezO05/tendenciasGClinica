@@ -71,7 +71,7 @@ export function ListUsers() {
         return specialty ? specialty.nombre : '-';
     };
 
-    const exportToPDF = (userData) => {
+    const exportToPDF = (userData = filteredUsers) => {
         const doc = new jsPDF();
         const title = userData.length === 1 
             ? `Ficha de Usuario: ${userData[0].nombres} ${userData[0].apellidos}`
@@ -120,7 +120,7 @@ export function ListUsers() {
             <NavigationBar title={"Listado de Empleados"} />
             <div className="container-fluid mt-4">
                 <div className="row mb-4">
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                         <div className="input-group">
                             <span className="input-group-text">
                                 <Search size={20} />
@@ -167,6 +167,11 @@ export function ListUsers() {
                             </select>
                         </div>
                     )}
+                    <div className="col-md-2">
+                        <button className="btn btn-primary w-100" onClick={() => exportToPDF()}>
+                            <Download className="me-2" size={20} />Exportar PDF
+                        </button>
+                    </div>
                 </div>
 
                 <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded">

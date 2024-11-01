@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { getPatients } from '../api/Clinica.api';
 import { NavigationBar } from '../components/NavigationBar';
 import { useNavigate } from 'react-router-dom';
-import { FileText } from 'lucide-react';
+import { FileText, Search } from 'lucide-react';
 
 export function ListMedicalRecordPatients() {
     const [patients, setPatients] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -20,10 +21,31 @@ export function ListMedicalRecordPatients() {
         navigate('/general-medical-records', { state: { patient } });
     };
 
+    const filteredPatients = patients.filter(patient =>
+        patient.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div>
             <NavigationBar title={"Pacientes"} />
             <div className="container mt-2">
+                <div className="row mb-4">
+                    <div className="col-md-8">
+                        <div className="input-group">
+                            <span className="input-group-text">
+                                <Search size={20} />
+                            </span>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Buscar paciente por nombre..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="table-responsive shadow-sm p-3 mb-4 bg-white rounded">
                     <table className="table table-striped table-bordered table-hover">
                         <thead className="text-center">
@@ -35,7 +57,7 @@ export function ListMedicalRecordPatients() {
                             </tr>
                         </thead>
                         <tbody>
-                            {patients.map(patient => (
+                            {filteredPatients.map(patient => (
                                 <tr key={patient.id}>
                                     <td>{patient.nombre_completo}</td>
                                     <td>{patient.email}</td>
@@ -43,7 +65,7 @@ export function ListMedicalRecordPatients() {
                                     <td className="text-center">
                                         <button className="btn btn-success btn-sm"
                                             onClick={() => handleMedicalRecordPatient(patient)}>
-                                               <FileText />
+                                            <FileText />
                                         </button>
                                     </td>
                                 </tr>
