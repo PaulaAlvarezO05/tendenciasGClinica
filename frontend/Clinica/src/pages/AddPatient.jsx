@@ -61,7 +61,7 @@ export function AddPatient() {
             setNumeroPoliza('');
             setVigenciaPoliza('');
             setEstadoPoliza('A'); 
-            SetIbc('');
+            setIbc('');
             setSuccessMessage('Paciente registrado exitosamente!');
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
