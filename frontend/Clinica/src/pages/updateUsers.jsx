@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { getUsers, updateUser, deleteUser, getRol, getMedicalSpecialties } from '../api/Clinica.api';
 import { NavigationBar } from '../components/NavigationBar';
 import { Trash2, Search, Edit2 } from 'lucide-react';
+import { Modal, Button, Form, Card, Table, Alert } from 'react-bootstrap';
 
 export function UpdateUsers() {
     const [users, setUsers] = useState([]);
     const [listRoles, setListRoles] = useState([]);
     const [listEspecialidades, setListEspecialidades] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         nombres: '',
@@ -17,7 +18,7 @@ export function UpdateUsers() {
         fecha_nacimiento: '',
         direccion: '',
         rol: '',
-        especialidad: '', 
+        especialidad: '',
     });
     const [updateMessage, setUpdateMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -59,9 +60,13 @@ export function UpdateUsers() {
         user.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const getRoles = (id) => {
+        const rol = listRoles.find(r => r.id === id);
+        return rol ? rol.nombre : 'Desconocido';
+    };
+
     const handleEditClick = (user) => {
         setSelectedUser(user);
-        setIsEditing(true);
         setFormData({
             email: user.email,
             nombres: user.nombres,
@@ -69,10 +74,11 @@ export function UpdateUsers() {
             telefono: user.telefono,
             fecha_nacimiento: user.fecha_nacimiento,
             direccion: user.direccion,
-            rol: user.rol ? user.rol.id : '',
-            especialidad: user.especialidad ? user.especialidad.id : '', 
+            rol: user.rol,
+            especialidad: user.especialidad,
         });
         setUpdateMessage('');
+        setShowModal(true);
     };
 
     const handleDeleteClick = async (id) => {
@@ -95,44 +101,32 @@ export function UpdateUsers() {
             const updatedUser = await updateUser(selectedUser.id, formData);
             setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
             setUpdateMessage('Usuario actualizado correctamente.');
-            setIsEditing(false);
-            setSelectedUser(null);
-            setFormData({
-                email: '',
-                nombres: '',
-                apellidos: '',
-                telefono: '',
-                fecha_nacimiento: '',
-                direccion: '',
-                rol: '',
-                especialidad: '', 
-            });
+            setTimeout(() => {
+                setShowModal(false);
+                setSelectedUser(null);
+                setFormData({
+                    email: '',
+                    nombres: '',
+                    apellidos: '',
+                    telefono: '',
+                    fecha_nacimiento: '',
+                    direccion: '',
+                    rol: '',
+                    especialidad: '',
+                });
+                setUpdateMessage('');
+            }, 1500);
         } catch (error) {
             console.error('Error al actualizar el usuario:', error);
             setUpdateMessage('Error al actualizar el usuario.');
         }
     };
 
-    const handleCancelEdit = () => {
-        setIsEditing(false);
-        setSelectedUser(null);
-        setFormData({
-            email: '',
-            nombres: '',
-            apellidos: '',
-            telefono: '',
-            fecha_nacimiento: '',
-            direccion: '',
-            rol: '',
-            especialidad: '', 
-        });
-    };
-
     return (
-        <div className="container mt-4">
-            <NavigationBar title={"Actualizar Empleado"} />
-            <div className="row mb-4">
-                <div className="col-md-6">
+        <div>
+            <NavigationBar title={"Empleados"} />
+            <div className="container mt-4 w-75">
+                <div className="row mb-4">
                     <div className="input-group">
                         <span className="input-group-text">
                             <Search size={20} />
@@ -140,166 +134,217 @@ export function UpdateUsers() {
                         <input
                             type="text"
                             className="form-control"
-                            placeholder="Buscar usuario por nombre..."
+                            placeholder="Buscar empleado por usuario..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                 </div>
-            </div>
+                <Card className="shadow-sm border-light mb-4">
+                    <Card.Body>
+                        <div className="table-responsive">
+                            <Table hover bordered striped>
+                                <thead className="table-light text-center">
+                                    <tr>
+                                        <th>Nombre de Usuario</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.length > 0 ? (
+                                        filteredUsers.map(user => (
+                                            <tr key={user.id}>
+                                                <td>{user.username}</td>
+                                                <td className='text-center'>
+                                                    <Button
+                                                        variant="outline-primary"
+                                                        size="sm"
+                                                        className="me-2"
+                                                        onClick={() => handleEditClick(user)}
+                                                    >
+                                                        <Edit2 className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(user.id)}
+                                                    >
+                                                        <Trash2 />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="3" className="text-center">
+                                                No hay usuarios disponibles.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </div>
+                    </Card.Body>
+                </Card>
 
-            <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded" id="users-table">
-                <table className="table table-striped table-bordered table-hover">
-                    <thead className="thead-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre de Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.length > 0 ? (
-                            filteredUsers.map(user => (
-                                <tr key={user.id}>
-                                    <td>{user.id}</td>
-                                    <td>{user.username}</td>
-                                    <td>
-                                        <button 
-                                            className="btn btn-sm btn-outline-primary me-2"
-                                            onClick={() => handleEditClick(user)}>
-                                            <span><Edit2 className="h-4 w-4" /></span>
-                                        </button>
-                                        <button 
-                                            className="btn btn-outline-danger btn-sm"
-                                            onClick={() => handleDeleteClick(user.id)}>
-                                            <Trash2 />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" className="text-center">No hay usuarios disponibles.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {isEditing && (
-                <div className="mt-4">
-                    <h3>Editar Usuario</h3>
-                    <form onSubmit={handleFormSubmit}>
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Email</label>
-                                <input 
-                                    type="email" 
-                                    className="form-control" 
-                                    name="email" 
-                                    value={formData.email} 
-                                    onChange={handleInputChange} 
-                                    required 
-                                />
+                <Modal
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    size="lg"
+                    centered
+                >
+                    <Modal.Header className="bg-success text-white border-bottom">
+                        <Modal.Title as="h4" className="w-100 text-center" >Editar Empleado</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={handleFormSubmit}>
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Nombres</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="nombres"
+                                            value={formData.nombres}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Apellidos</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="apellidos"
+                                            value={formData.apellidos}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
                             </div>
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Nombres</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
-                                    name="nombres" 
-                                    value={formData.nombres} 
-                                    onChange={handleInputChange} 
-                                    required 
-                                />
-                            </div>
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Apellidos</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                name="apellidos" 
-                                value={formData.apellidos} 
-                                onChange={handleInputChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Teléfono</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                name="telefono" 
-                                value={formData.telefono} 
-                                onChange={handleInputChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Fecha de Nacimiento</label>
-                            <input 
-                                type="date" 
-                                className="form-control" 
-                                name="fecha_nacimiento" 
-                                value={formData.fecha_nacimiento} 
-                                onChange={handleInputChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Dirección</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                name="direccion" 
-                                value={formData.direccion} 
-                                onChange={handleInputChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="rol">Rol</label>
-                            <select
-                                className="form-select"
-                                id="rol"
-                                name="rol"
-                                value={formData.rol}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option disabled value="">Seleccione un rol</option>
-                                {listRoles.map(role => (
-                                    <option key={role.id} value={role.id}>
-                                        {role.nombre}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="especialidad">Especialidad Médica</label>
-                            <select
-                                className="form-select"
-                                id="especialidad"
-                                name="especialidad"
-                                value={formData.especialidad}
-                                onChange={handleInputChange}
-                            >
-                                <option value="">Seleccione una especialidad (opcional)</option>
-                                {listEspecialidades.map(especialidad => (
-                                    <option key={especialidad.id} value={especialidad.id}>
-                                        {especialidad.nombre}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
 
-                        <button type="submit" className="btn btn-primary">Actualizar Usuario</button>
-                        <button type="button" className="btn btn-secondary ms-2" onClick={handleCancelEdit}>Cancelar</button>
-                    </form>
-                    {updateMessage && <div className="alert alert-info mt-3">{updateMessage}</div>}
-                </div>
-            )}
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="fw-bold">Email</Form.Label>
+                                            <Form.Control
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Teléfono</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="telefono"
+                                            value={formData.telefono}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Fecha de Nacimiento</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            name="fecha_nacimiento"
+                                            value={formData.fecha_nacimiento}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Dirección</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="direccion"
+                                            value={formData.direccion}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Rol</Form.Label>
+                                        <Form.Select
+                                            name="rol"
+                                            value={formData.rol}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option disabled value="">Seleccione un rol</option>
+                                            {listRoles.map(role => (
+                                                <option key={role.id} value={role.id}>
+                                                    {role.nombre}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    {getRoles(formData.rol) === 'Médico' && (
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="fw-bold">Especialidad Médica</Form.Label>
+                                            <Form.Select
+                                                name="especialidad"
+                                                value={formData.especialidad}
+                                                onChange={handleInputChange}
+                                            >
+                                                <option value="">Seleccione una especialidad (opcional)</option>
+                                                {listEspecialidades.map(especialidad => (
+                                                    <option key={especialidad.id} value={especialidad.id}>
+                                                        {especialidad.nombre}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </Form.Group>
+                                    )}
+                                </div>
+                            </div>
+
+                            {updateMessage && (
+                                <Alert variant={updateMessage.includes('error') ? 'danger' : 'success'}>
+                                    {updateMessage}
+                                </Alert>
+                            )}
+
+                            <div className="d-flex justify-content-end gap-2">
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button
+                                    variant="success"
+                                    type="submit"
+                                >
+                                    Actualizar
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+            </div>
         </div>
     );
 }

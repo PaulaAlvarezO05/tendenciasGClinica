@@ -41,7 +41,7 @@ export function MedicationInventory() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       if (selectedMedication) {
         await updateMedication(selectedMedication.id, formData);
@@ -128,123 +128,125 @@ export function MedicationInventory() {
   if (loading) return <div>Cargando...</div>;
 
   return (
-    <div className="container mt-4">
+    <div>
       <NavigationBar title={"Inventario de Medicamentos"} />
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="input-group">
-            <span className="input-group-text"><Search size={20} /></span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Buscar medicamentos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="col-md-6 text-end">
-          <button onClick={() => { resetForm(); setShowModal(true); }} className="btn btn-primary">
-            <PlusCircle className="h-4 w-4 me-2 d-inline-block" />
-            Agregar Medicamento
-          </button>
-          <button onClick={exportToPDF} className="btn btn-secondary ms-2">
-            Exportar PDF
-          </button>
-        </div>
-      </div>
-
-      {updateMessage && (
-        <div className="alert alert-success alert-dismissible fade show" role="alert">
-          {updateMessage}
-          <button type="button" className="btn-close" onClick={() => setUpdateMessage('')}></button>
-        </div>
-      )}
-
-      {filteredMedications.map(med =>
-        med.cantidad_disponible < 10 && (
-          <div key={`alert-${med.id}`} className="alert alert-danger d-flex align-items-center">
-            <AlertCircle className="h-4 w-4 me-2" />
-            ¡Stock Bajo! {med.nombre_medicamento} tiene {med.cantidad_disponible} unidades
-          </div>
-        )
-      )}
-
-      <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded">
-        <table className="table table-striped table-bordered table-hover">
-          <thead className="thead-dark">
-            <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th className="text-end">Cantidad</th>
-              <th className="text-end">Costo</th>
-              <th className="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredMedications.length > 0 ? (
-              filteredMedications.map(medication => (
-                <tr key={medication.id}>
-                  <td>{medication.nombre_medicamento}</td>
-                  <td>{medication.descripcion}</td>
-                  <td className={`text-end ${medication.cantidad_disponible < 10 ? 'text-danger fw-bold' : ''}`}>
-                    {medication.cantidad_disponible}
-                  </td>
-                  <td className="text-end">${Number(medication.costo).toFixed(2)}</td>
-                  <td className="text-center">
-                    <button onClick={() => handleEdit(medication)} className="btn btn-sm btn-outline-primary me-2">
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => handleDelete(medication.id)} className="btn btn-sm btn-outline-danger">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center">No hay medicamentos disponibles.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {showModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">{selectedMedication ? 'Editar' : 'Agregar'} Medicamento</h5>
-                <button type="button" className="btn-close" onClick={() => { setShowModal(false); resetForm(); }}></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  {['nombre_medicamento', 'descripcion', 'cantidad_disponible', 'costo'].map((field, index) => (
-                    <div className="mb-3" key={index}>
-                      <label className="form-label">{field === 'nombre_medicamento' ? 'Nombre del Medicamento' : field === 'descripcion' ? 'Descripción' : field === 'cantidad_disponible' ? 'Cantidad Disponible' : 'Costo'}</label>
-                      <input
-                        type={field === 'descripcion' ? 'textarea' : 'text'}
-                        name={field}
-                        className="form-control"
-                        value={formData[field]}
-                        onChange={handleInputChange}
-                        required
-                        min={field === 'cantidad_disponible' || field === 'costo' ? '0' : undefined}
-                        step={field === 'costo' ? '0.01' : undefined}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => { setShowModal(false); resetForm(); }}>Cancelar</button>
-                  <button type="submit" className="btn btn-primary">{selectedMedication ? 'Actualizar' : 'Agregar'}</button>
-                </div>
-              </form>
+      <div className="container mt-4">
+        <div className="row mb-4">
+          <div className="col-md-8">
+            <div className="input-group">
+              <span className="input-group-text"><Search size={20} /></span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar medicamentos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
+          <div className="col-md-4 text-end">
+            <button onClick={() => { resetForm(); setShowModal(true); }} className="btn btn-primary">
+              <PlusCircle className="h-4 w-4 me-2 d-inline-block" />
+              Agregar Medicamento
+            </button>
+            <button onClick={exportToPDF} className="btn btn-secondary ms-2">
+              Exportar PDF
+            </button>
+          </div>
         </div>
-      )}
+
+        {updateMessage && (
+          <div className="alert alert-success alert-dismissible fade show" role="alert">
+            {updateMessage}
+            <button type="button" className="btn-close" onClick={() => setUpdateMessage('')}></button>
+          </div>
+        )}
+
+        {filteredMedications.map(med =>
+          med.cantidad_disponible < 10 && (
+            <div key={`alert-${med.id}`} className="alert alert-danger d-flex align-items-center">
+              <AlertCircle className="h-4 w-4 me-2" />
+              ¡Stock Bajo! {med.nombre_medicamento} tiene {med.cantidad_disponible} unidades
+            </div>
+          )
+        )}
+
+        <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded">
+          <table className="table table-striped table-bordered table-hover">
+            <thead className="thead-dark text-center">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Costo</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredMedications.length > 0 ? (
+                filteredMedications.map(medication => (
+                  <tr key={medication.id}>
+                    <td>{medication.nombre_medicamento}</td>
+                    <td>{medication.descripcion}</td>
+                    <td className={`text-end ${medication.cantidad_disponible < 10 ? 'text-danger fw-bold' : ''}`}>
+                      {medication.cantidad_disponible}
+                    </td>
+                    <td className="text-end">${Number(medication.costo).toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td className="text-center">
+                      <button onClick={() => handleEdit(medication)} className="btn btn-sm btn-outline-primary me-2">
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDelete(medication.id)} className="btn btn-sm btn-outline-danger">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center">No hay medicamentos disponibles.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {showModal && (
+          <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">{selectedMedication ? 'Editar' : 'Agregar'} Medicamento</h5>
+                  <button type="button" className="btn-close" onClick={() => { setShowModal(false); resetForm(); }}></button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="modal-body">
+                    {['nombre_medicamento', 'descripcion', 'cantidad_disponible', 'costo'].map((field, index) => (
+                      <div className="mb-3" key={index}>
+                        <label className="form-label">{field === 'nombre_medicamento' ? 'Nombre del Medicamento' : field === 'descripcion' ? 'Descripción' : field === 'cantidad_disponible' ? 'Cantidad Disponible' : 'Costo'}</label>
+                        <input
+                          type={field === 'descripcion' ? 'textarea' : 'text'}
+                          name={field}
+                          className="form-control"
+                          value={formData[field]}
+                          onChange={handleInputChange}
+                          required
+                          min={field === 'cantidad_disponible' || field === 'costo' ? '0' : undefined}
+                          step={field === 'costo' ? '0.01' : undefined}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={() => { setShowModal(false); resetForm(); }}>Cancelar</button>
+                    <button type="submit" className="btn btn-primary">{selectedMedication ? 'Actualizar' : 'Agregar'}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

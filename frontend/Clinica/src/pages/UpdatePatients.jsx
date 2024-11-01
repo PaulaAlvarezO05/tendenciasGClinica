@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { getPatients, updatePatient, deletePatient } from '../api/Clinica.api';
 import { NavigationBar } from '../components/NavigationBar';
 import { Trash2, Search, Edit2 } from 'lucide-react';
+import { Modal, Button, Form, Card, Table, Alert } from 'react-bootstrap';
 
 export function UpdatePatients() {
     const [patients, setPatients] = useState([]);
     const [selectedPatient, setSelectedPatient] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         nombre_completo: '',
         fecha_nacimiento: '',
@@ -59,8 +60,8 @@ export function UpdatePatients() {
             vigencia_poliza: patient.vigencia_poliza,
             ibc: patient.ibc,
         });
-        setIsEditing(true);
         setUpdateMessage('');
+        setShowModal(true);
     };
 
     const handleDeleteClick = async (id) => {
@@ -91,23 +92,26 @@ export function UpdatePatients() {
             const updatedPatient = await updatePatient(selectedPatient.id, formData);
             setPatients(patients.map(patient => (patient.id === updatedPatient.id ? updatedPatient : patient)));
             setUpdateMessage('Paciente actualizado correctamente.');
-            setIsEditing(false);
-            setSelectedPatient(null);
-            setFormData({
-                nombre_completo: '',
-                fecha_nacimiento: '',
-                genero: '',
-                direccion: '',
-                telefono: '',
-                email: '',
-                nombre_emergencia: '',
-                telefono_emergencia: '',
-                compañia_Seguros: '',
-                numero_poliza: '',
-                estado_poliza: 'A',
-                vigencia_poliza: '',
-                ibc: '',
-            });
+            setTimeout(() => {
+                setShowModal(false);
+                setSelectedPatient(null);
+                setFormData({
+                    nombre_completo: '',
+                    fecha_nacimiento: '',
+                    genero: '',
+                    direccion: '',
+                    telefono: '',
+                    email: '',
+                    nombre_emergencia: '',
+                    telefono_emergencia: '',
+                    compañia_Seguros: '',
+                    numero_poliza: '',
+                    estado_poliza: 'A',
+                    vigencia_poliza: '',
+                    ibc: '',
+                });
+                setUpdateMessage('');
+            }, 1500);
         } catch (error) {
             console.error('Error al actualizar el paciente:', error);
             setUpdateMessage('Error al actualizar el paciente.');
@@ -115,10 +119,10 @@ export function UpdatePatients() {
     };
 
     return (
-        <div className="container mt-4">
+        <div>
             <NavigationBar title={"Actualizar Pacientes"} />
-            <div className="row mb-4">
-                <div className="col-md-6">
+            <div className="container mt-4 w-75">
+                <div className="row mb-4">
                     <div className="input-group">
                         <span className="input-group-text">
                             <Search size={20} />
@@ -132,117 +136,266 @@ export function UpdatePatients() {
                         />
                     </div>
                 </div>
-            </div>
 
-            <div className="table-responsive shadow-sm p-3 mb-5 bg-white rounded" id="patients-table">
-                <table className="table table-striped table-bordered table-hover">
-                    <thead className="thead-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre Completo</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredPatients.length > 0 ? (
-                            filteredPatients.map(patient => (
-                                <tr key={patient.id}>
-                                    <td>{patient.id}</td>
-                                    <td>{patient.nombre_completo}</td>
-                                    <td>
-                                        <button 
-                                            className="btn btn-sm btn-outline-primary me-2"
-                                            onClick={() => handleEditClick(patient)}>
-                                            <span><Edit2 className="h-4 w-4" /></span>
-                                        </button>
-                                        <button 
-                                            className="btn btn-outline-danger btn-sm"
-                                            onClick={() => handleDeleteClick(patient.id)}>
-                                            <Trash2 />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" className="text-center">No hay pacientes disponibles.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                <Card className="shadow-sm border-light mb-4">
+                    <Card.Body>
+                        <div className="table-responsive">
+                            <Table hover bordered striped>
+                                <thead className="table-light text-center">
+                                    <tr>
+                                        <th>Nombre Completo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredPatients.length > 0 ? (
+                                        filteredPatients.map(patient => (
+                                            <tr key={patient.id}>
+                                                <td>{patient.nombre_completo}</td>
+                                                <td className='text-center'>
+                                                    <Button
+                                                        variant="outline-primary"
+                                                        size="sm"
+                                                        className="me-2"
+                                                        onClick={() => handleEditClick(patient)}
+                                                    >
+                                                        <Edit2 className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(patient.id)}
+                                                    >
+                                                        <Trash2 />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="2" className="text-center">
+                                                No hay pacientes disponibles.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </div>
+                    </Card.Body>
+                </Card>
 
-            {isEditing && (
-                <div className="mt-4">
-                    <h3>Editar Paciente</h3>
-                    <form onSubmit={handleFormSubmit}>
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Nombre Completo</label>
-                                <input type="text" className="form-control" name="nombre_completo" value={formData.nombre_completo} onChange={handleInputChange} required />
+                <Modal
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    size="lg"
+                    centered
+                >
+                    <Modal.Header className="bg-success text-white border-bottom">
+                        <Modal.Title as="h4" className="w-100 text-center">Editar Paciente</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={handleFormSubmit}>
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Nombre Completo</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="nombre_completo"
+                                            value={formData.nombre_completo}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Fecha de Nacimiento</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            name="fecha_nacimiento"
+                                            value={formData.fecha_nacimiento}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
                             </div>
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Fecha de Nacimiento</label>
-                                <input type="date" className="form-control" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleInputChange} required />
-                            </div>
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Género</label>
-                            <select className="form-control" name="genero" value={formData.genero} onChange={handleInputChange} required>
-                                <option value="masculino">Masculino</option>
-                                <option value="femenino">Femenino</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Dirección</label>
-                            <input type="text" className="form-control" name="direccion" value={formData.direccion} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Teléfono</label>
-                            <input type="text" className="form-control" name="telefono" value={formData.telefono} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Correo Electrónico</label>
-                            <input type="email" className="form-control" name="email" value={formData.email} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Contacto de Emergencia</label>
-                            <input type="text" className="form-control" name="nombre_emergencia" value={formData.nombre_emergencia} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Teléfono de Emergencia</label>
-                            <input type="text" className="form-control" name="telefono_emergencia" value={formData.telefono_emergencia} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Compañía de Seguros</label>
-                            <input type="text" className="form-control" name="compañia_Seguros" value={formData.compañia_Seguros} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Número de Póliza</label>
-                            <input type="number" className="form-control" name="numero_poliza" value={formData.numero_poliza} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Vigencia de Póliza</label>
-                            <input type="date" className="form-control" name="vigencia_poliza" value={formData.vigencia_poliza} onChange={handleInputChange} required />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Estado de Póliza</label>
-                            <select className="form-control" name="estado_poliza" value={formData.estado_poliza} readOnly>
-                                <option value="A">Activa</option>
-                                <option value="I">Inactiva</option>
-                            </select>
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Ingreso Base de Cotización</label>
-                            <input type="text" className="form-control" name="ibc" value={formData.ibc} onChange={handleInputChange} required />
-                        </div>
 
-                        <button type="submit" className="btn btn-primary">Actualizar Paciente</button>
-                    </form>
-                    {updateMessage && <div className="alert alert-info mt-3">{updateMessage}</div>}
-                </div>
-            )}
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Género</Form.Label>
+                                        <Form.Select
+                                            name="genero"
+                                            value={formData.genero}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="masculino">Masculino</option>
+                                            <option value="femenino">Femenino</option>
+                                            <option value="otro">Otro</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Dirección</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="direccion"
+                                            value={formData.direccion}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Teléfono</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="telefono"
+                                            value={formData.telefono}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Correo Electrónico</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Contacto de Emergencia</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="nombre_emergencia"
+                                            value={formData.nombre_emergencia}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Teléfono de Emergencia</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="telefono_emergencia"
+                                            value={formData.telefono_emergencia}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Compañía de Seguros</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="compañia_Seguros"
+                                            value={formData.compañia_Seguros}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Número de Póliza</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="numero_poliza"
+                                            value={formData.numero_poliza}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Vigencia de Póliza</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            name="vigencia_poliza"
+                                            value={formData.vigencia_poliza}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-6">
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Estado de Póliza</Form.Label>
+                                        <Form.Select
+                                            name="estado_poliza"
+                                            value={formData.estado_poliza}
+                                            disabled
+                                        >
+                                            <option value="A">Activa</option>
+                                            <option value="I">Inactiva</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Ingreso Base de Cotización</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="ibc"
+                                    value={formData.ibc}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            {updateMessage && (
+                                <Alert variant={updateMessage.includes('error') ? 'danger' : 'success'}>
+                                    {updateMessage}
+                                </Alert>
+                            )}
+
+                            <div className="d-flex justify-content-end gap-2">
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button
+                                    variant="success"
+                                    type="submit"
+                                >
+                                    Actualizar
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+            </div>
         </div>
     );
 }

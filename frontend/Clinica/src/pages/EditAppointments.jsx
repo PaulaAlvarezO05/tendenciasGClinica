@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getPatients, getAppointments, updateAppointment, getMedicos, getConsultationType, addBilling} from '../api/Clinica.api';
+import { getPatients, getAppointments, updateAppointment, getMedicos, getConsultationType, addBilling } from '../api/Clinica.api';
 import { NavigationBar } from '../components/NavigationBar';
 import { UserSearch, CalendarClock, CalendarX, FileDown } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -32,14 +32,14 @@ export function EditAppointments() {
                     getPatients(),
                     getMedicos(),
                     getConsultationType(),
-                   
+
                 ]);
 
                 setAllAppointments(appointmentsRes.data);
                 setPatients(patientsRes.data);
                 setMedicos(medicosRes.data);
                 setConsultation(consultationRes.data);
-              
+
                 filterAppointments(appointmentsRes.data, '');
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -69,11 +69,11 @@ export function EditAppointments() {
     }, [searchTerm, allAppointments, patients]);
 
     const getPatient = (id) => {
-        const patient = patients.find(p => p.id === id); 
+        const patient = patients.find(p => p.id === id);
         if (patient) {
             return {
-                nombre: patient.nombre_completo, 
-                ibc: parseFloat(patient.ibc) || 0, 
+                nombre: patient.nombre_completo,
+                ibc: parseFloat(patient.ibc) || 0,
             };
         }
         return {
@@ -81,8 +81,8 @@ export function EditAppointments() {
             ibc: 0,
         };
     };
-    
-  
+
+
     const getMedico = (id) => {
         const medico = medicos.find(d => d.id === id);
         return medico ? `${medico.nombres} ${medico.apellidos}` : 'Desconocido';
@@ -93,7 +93,7 @@ export function EditAppointments() {
         if (consult) {
             return {
                 nombre: consult.nombre,
-                precio_base: parseFloat(consult.precio_base) || 0, 
+                precio_base: parseFloat(consult.precio_base) || 0,
             };
         }
         return {
@@ -101,11 +101,10 @@ export function EditAppointments() {
             precio_base: 0,
         };
     };
-    
-    
+
+
     const handlePayment = (appointment) => {
         const patie = getPatient(appointment.paciente);
-        console.log('Paciente:', patie); 
         if (!patie.nombre) {
             console.error(`Paciente con ID ${appointment.paciente} no encontrado.`);
         }
@@ -114,7 +113,7 @@ export function EditAppointments() {
         setSelectedAppointment(appointment);
         setPaymentInfo({
             ...paymentInfo,
-            amount: paymentAmount || '0' 
+            amount: paymentAmount || '0'
         });
         setShowPaymentModal(true);
     };
@@ -123,11 +122,11 @@ export function EditAppointments() {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handlePaymentSubmit = async () => {
-        if (isProcessing) return; 
+        if (isProcessing) return;
         setIsProcessing(true);
 
         try {
-            
+
             const updatedAppointment = {
                 ...selectedAppointment,
                 estado_pago: 'Pagado',
@@ -172,8 +171,8 @@ export function EditAppointments() {
             setIsProcessing(false);
         }
     };
-    
-    
+
+
     const handleCancelAppointment = async (id) => {
         try {
             const appointmentToUpdate = allAppointments.find(appointment => appointment.id === id);
@@ -226,82 +225,81 @@ export function EditAppointments() {
     };
     const calculatePayment = (ibc, precioBase) => {
         if (ibc <= 2600000) {
-            return precioBase * 0.117; 
+            return precioBase * 0.117;
         } else if (ibc > 2600000 && ibc <= 6500000) {
-            return precioBase * 0.461; 
+            return precioBase * 0.461;
         } else {
-            return precioBase * 1.215; 
+            return precioBase * 1.215;
         }
     };
-  
 
-const exportToPDF = (appointment) => {
-    const doc = new jsPDF('');
+    const exportToPDF = (appointment) => {
+        const doc = new jsPDF('');
 
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('FACTURA', 105, 20, { align: 'center' });
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('FACTURA', 105, 20, { align: 'center' });
 
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
 
-    const consulta = getConsultation(appointment.tipo_consulta);
-    const patie = getPatient(appointment.paciente);
-    const paymentAmount = calculatePayment(patie.ibc, consulta.precio_base).toFixed(2);
+        const consulta = getConsultation(appointment.tipo_consulta);
+        const patie = getPatient(appointment.paciente);
+        const paymentAmount = calculatePayment(patie.ibc, consulta.precio_base).toFixed(2);
 
-    const tableColumn = [
-        "Descripción",
-        "Valor"
-    ];
+        const tableColumn = [
+            "Descripción",
+            "Valor"
+        ];
 
-    const tableRows = [
-        ['Factura ID', appointment.id],
-        ['Paciente', patie.nombre],
-        ['Fecha', new Date().toLocaleDateString()],
-        ['Tipo de Consulta', consulta.nombre],
-        ['Monto Total', `$${paymentAmount}`],
-        ['Estado de Pago', appointment.estado_pago],
-    ];
+        const tableRows = [
+            ['Factura ID', appointment.id],
+            ['Paciente', patie.nombre],
+            ['Fecha', new Date().toLocaleDateString()],
+            ['Tipo de Consulta', consulta.nombre],
+            ['Monto Total', `$${paymentAmount}`],
+            ['Estado de Pago', appointment.estado_pago],
+        ];
 
-    doc.autoTable({
-        head: [tableColumn],
-        body: tableRows,
-        startY: 30,
-        headStyles: { fontSize: 12, fillColor: [66, 66, 66], textColor: 255 },
-        bodyStyles: { fontSize: 10 },
-        columnStyles: {
-            0: { cellWidth: 80 },
-            1: { cellWidth: 80 },
-        },
-        theme: 'striped',
-    });
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30,
+            headStyles: { fontSize: 12, fillColor: [66, 66, 66], textColor: 255 },
+            bodyStyles: { fontSize: 10 },
+            columnStyles: {
+                0: { cellWidth: 80 },
+                1: { cellWidth: 80 },
+            },
+            theme: 'striped',
+        });
 
-    const pageHeight = doc.internal.pageSize.height;
-    doc.setFontSize(10);
-    doc.text('Este documento es una factura oficial.', 105, pageHeight - 30, { align: 'center' });
+        const pageHeight = doc.internal.pageSize.height;
+        doc.setFontSize(10);
+        doc.text('Este documento es una factura oficial.', 105, pageHeight - 30, { align: 'center' });
 
-    const fechaEmision = new Date().toLocaleString();
-    doc.setFontSize(8);
-    doc.text(`Documento generado el: ${fechaEmision}`, 105, pageHeight - 10, { align: 'center' });
+        const fechaEmision = new Date().toLocaleString();
+        doc.setFontSize(8);
+        doc.text(`Documento generado el: ${fechaEmision}`, 105, pageHeight - 10, { align: 'center' });
 
-    doc.save(`Factura_${appointment.id}.pdf`);
-};
+        doc.save(`Factura_${appointment.id}.pdf`);
+    };
 
-const handleDownloadInvoice = (id) => {
-    if (!allAppointments || allAppointments.length === 0) {
-        console.error('No se han cargado citas o la lista de citas está vacía');
-        return;
-    }
+    const handleDownloadInvoice = (id) => {
+        if (!allAppointments || allAppointments.length === 0) {
+            console.error('No se han cargado citas o la lista de citas está vacía');
+            return;
+        }
 
-    const appointment = allAppointments.find(app => app.id === id);
-    
-    if (appointment) {
-        console.log('Cita encontrada:', appointment);
-        exportToPDF(appointment);
-    } else {
-        console.error('Cita no encontrada para ID:', id);
-    }
-};
+        const appointment = allAppointments.find(app => app.id === id);
+
+        if (appointment) {
+            console.log('Cita encontrada:', appointment);
+            exportToPDF(appointment);
+        } else {
+            console.error('Cita no encontrada para ID:', id);
+        }
+    };
 
     return (
         <div>
@@ -322,7 +320,6 @@ const handleDownloadInvoice = (id) => {
                     />
                 </div>
 
-
                 <div className="table-responsive shadow-sm p-3 mb-5 bg-light rounded">
                     <table className="table table-striped table-bordered table-hover">
                         <thead className="thead-dark text-center">
@@ -330,178 +327,179 @@ const handleDownloadInvoice = (id) => {
                                 <th>Paciente</th>
                                 <th>Médico</th>
                                 <th>Fecha y Hora</th>
-                                <th>Tipo de Consulta</th> 
-                                <th>Valor</th> 
+                                <th>Tipo de Consulta</th>
+                                <th>Valor</th>
                                 <th>Estado Pago</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-    {appointments.length > 0 ? (
-        appointments.map((appointment) => {
-            const consulta = getConsultation(appointment.tipo_consulta);
-            const patie = getPatient(appointment.paciente);
-            
-            const price = typeof consulta.precio_base === 'number' && !isNaN(consulta.precio_base) 
-                ? consulta.precio_base.toFixed(2) 
-                : 'N/A';
-            const paymentAmount = calculatePayment(patie.ibc, consulta.precio_base).toFixed(2);
-            const billingStatus = appointment.billing ? appointment.billing.estado_pago : 'Pendiente';
+                            {appointments.length > 0 ? (
+                                appointments.map((appointment) => {
+                                    const consulta = getConsultation(appointment.tipo_consulta);
+                                    const patie = getPatient(appointment.paciente);
 
-            return (  
-                <tr key={appointment.id}>
-                    <td>{patie.nombre}</td>
-                    <td>{getMedico(appointment.medico)}</td>
-                    <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
-                    <td>{consulta.nombre}</td>
-                    <td>{paymentAmount}</td> 
-                    <td>
-                        <span className={`badge ${appointment.estado_pago === 'Pagado' ? 'bg-success' : 'bg-warning'}`}>
-                            {appointment.estado_pago || 'Pendiente'}
-                        </span>
-                    </td>
-                    <td>
-                        <div className="btn-group">
-                            <button 
-                                className="btn btn-warning btn-sm me-2"
-                                onClick={() => handleReschedule(appointment)}
-                            >
-                                <CalendarClock/>
-                            </button>
-                            <button 
-                                className="btn btn-danger btn-sm"
-                                onClick={() => handleCancelAppointment(appointment.id)}
-                            >
-                                <CalendarX/>
-                            </button>
-                            {appointment.estado_pago !== 'Pagado' ? (
-                                <button 
-                                    className="btn btn-success btn-sm ms-2"
-                                    onClick={() => handlePayment(appointment)}
-                                >
-                                    Pagar
-                                </button>
+                                    const price = typeof consulta.precio_base === 'number' && !isNaN(consulta.precio_base)
+                                        ? consulta.precio_base.toFixed(2)
+                                        : 'N/A';
+
+                                    const paymentAmount = '$' + calculatePayment(patie.ibc, consulta.precio_base).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    const billingStatus = appointment.billing ? appointment.billing.estado_pago : 'Pendiente';
+
+                                    return (
+                                        <tr key={appointment.id}>
+                                            <td>{patie.nombre}</td>
+                                            <td>{getMedico(appointment.medico)}</td>
+                                            <td>{new Date(appointment.fecha_hora).toLocaleString()}</td>
+                                            <td>{consulta.nombre}</td>
+                                            <td>{paymentAmount}</td>
+                                            <td>
+                                                <span className={`badge ${appointment.estado_pago === 'Pagado' ? 'bg-success' : 'bg-warning'}`}>
+                                                    {appointment.estado_pago || 'Pendiente'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="btn-group">
+                                                    <button
+                                                        className="btn btn-warning btn-sm me-2"
+                                                        onClick={() => handleReschedule(appointment)}
+                                                    >
+                                                        <CalendarClock />
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() => handleCancelAppointment(appointment.id)}
+                                                    >
+                                                        <CalendarX />
+                                                    </button>
+                                                    {appointment.estado_pago !== 'Pagado' ? (
+                                                        <button
+                                                            className="btn btn-success btn-sm ms-2"
+                                                            onClick={() => handlePayment(appointment)}
+                                                        >
+                                                            Pagar
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="btn btn-info btn-sm ms-2"
+                                                            onClick={() => handleDownloadInvoice(appointment.id)}
+                                                        >
+                                                            <FileDown />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
-                                <button
-                                    className="btn btn-info btn-sm ms-2"
-                                    onClick={() => handleDownloadInvoice(appointment.id)}
-                                >
-                                    <FileDown />
-                                </button>
+                                <tr>
+                                    <td colSpan="7" className="text-center">No hay citas programadas para este paciente.</td>
+                                </tr>
                             )}
-                        </div>
-                    </td>
-                </tr>
-            );
-        })
-    ) : (
-        <tr>
-            <td colSpan="7" className="text-center">No hay citas programadas para este paciente.</td>
-        </tr>
-    )}
-</tbody>
+                        </tbody>
 
-                </table>
-            </div>
+                    </table>
+                </div>
 
-            {/* Se tiene en cuenta todo para la realización del pago */}
-            {showPaymentModal && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Procesar Pago</h5>
-                                <button 
-                                    type="button" 
-                                    className="btn-close" 
-                                    onClick={() => setShowPaymentModal(false)}
-                                />
-                            </div>
-                            <div className="modal-body">
-                                <div className="form-group mb-3">
-                                    <label>Método de Pago:</label>
-                                    <select
-                                        className="form-control"
-                                        value={paymentInfo.method}
-                                        onChange={(e) => setPaymentInfo({...paymentInfo, method: e.target.value})}
-                                    >
-                                        <option value="">Seleccione un método</option>
-                                        <option value="tarjeta">Tarjeta de Crédito/Débito</option>
-                                        <option value="efectivo">Efectivo</option>
-                                        <option value="transferencia">Transferencia Bancaria</option>
-                                    </select>
+                {/* Se tiene en cuenta todo para la realización del pago */}
+                {showPaymentModal && (
+                    <div className="modal show d-block" tabIndex="-1">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Procesar Pago</h5>
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        onClick={() => setShowPaymentModal(false)}
+                                    />
                                 </div>
+                                <div className="modal-body">
+                                    <div className="form-group mb-3">
+                                        <label>Método de Pago:</label>
+                                        <select
+                                            className="form-control"
+                                            value={paymentInfo.method}
+                                            onChange={(e) => setPaymentInfo({ ...paymentInfo, method: e.target.value })}
+                                        >
+                                            <option value="">Seleccione un método</option>
+                                            <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                                            <option value="efectivo">Efectivo</option>
+                                            <option value="transferencia">Transferencia Bancaria</option>
+                                        </select>
+                                    </div>
 
-                                {paymentInfo.method === 'tarjeta' && (
-                                    <>
-                                        <div className="form-group mb-3">
-                                            <label>Número de Tarjeta:</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={paymentInfo.cardNumber}
-                                                onChange={(e) => setPaymentInfo({...paymentInfo, cardNumber: e.target.value})}
-                                                placeholder="1234 5678 9012 3456"
-                                            />
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-6 mb-3">
-                                                <label>Fecha de Expiración:</label>
+                                    {paymentInfo.method === 'tarjeta' && (
+                                        <>
+                                            <div className="form-group mb-3">
+                                                <label>Número de Tarjeta:</label>
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={paymentInfo.expiryDate}
-                                                    onChange={(e) => setPaymentInfo({...paymentInfo, expiryDate: e.target.value})}
-                                                    placeholder="MM/AA"
+                                                    value={paymentInfo.cardNumber}
+                                                    onChange={(e) => setPaymentInfo({ ...paymentInfo, cardNumber: e.target.value })}
+                                                    placeholder="1234 5678 9012 3456"
                                                 />
                                             </div>
-                                            <div className="col-md-6 mb-3">
-                                                <label>CVV:</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={paymentInfo.cvv}
-                                                    onChange={(e) => setPaymentInfo({...paymentInfo, cvv: e.target.value})}
-                                                    placeholder="123"
-                                                />
+                                            <div className="row">
+                                                <div className="col-md-6 mb-3">
+                                                    <label>Fecha de Expiración:</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={paymentInfo.expiryDate}
+                                                        onChange={(e) => setPaymentInfo({ ...paymentInfo, expiryDate: e.target.value })}
+                                                        placeholder="MM/AA"
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label>CVV:</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={paymentInfo.cvv}
+                                                        onChange={(e) => setPaymentInfo({ ...paymentInfo, cvv: e.target.value })}
+                                                        placeholder="123"
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    </>
-                                )}
+                                        </>
+                                    )}
 
-                            <div className="form-group mb-3">
-                                <label>Monto a Pagar:</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={paymentInfo.amount}
-                                    onChange={(e) => setPaymentInfo({...paymentInfo, amount: e.target.value})}
-                                    readOnly
-                                />
-                            </div>
+                                    <div className="form-group mb-3">
+                                        <label>Monto a Pagar:</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={paymentInfo.amount}
+                                            onChange={(e) => setPaymentInfo({ ...paymentInfo, amount: e.target.value })}
+                                            readOnly
+                                        />
+                                    </div>
 
-                            </div>
-                            <div className="modal-footer">
-                                <button 
-                                    type="button" 
-                                    className="btn btn-secondary" 
-                                    onClick={() => setShowPaymentModal(false)}
-                                >
-                                    Cancelar
-                                </button>
-                                <button 
-                                    type="button" 
-                                    className="btn btn-primary"
-                                    onClick={handlePaymentSubmit}
-                                >
-                                    Confirmar Pago
-                                </button>
+                                </div>
+                                <div className="modal-footer">
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowPaymentModal(false)}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={handlePaymentSubmit}
+                                    >
+                                        Confirmar Pago
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-            {showPaymentModal && <div className="modal-backdrop show"></div>}
+                )}
+                {showPaymentModal && <div className="modal-backdrop show"></div>}
 
                 {showRescheduleModal && (
                     <div className="modal show d-block" tabIndex="-1">

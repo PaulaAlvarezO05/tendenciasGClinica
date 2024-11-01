@@ -113,7 +113,6 @@ export function ListAppointments({ rol }) {
     return (
         <div><NavigationBar title={"Historial de Citas Médicas"} />
             <div className="container mt-4">
-
                 {rol !== 'Médico' && (
                     <div className="row mb-4">
                         <div className="col-md-5">

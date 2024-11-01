@@ -25,8 +25,6 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const loginUser = async (credentials) => {
-        console.log("Intentando iniciar sesión con las credenciales:", credentials);
-        
         const { accessToken, refreshToken } = await login(credentials);
         setToken(accessToken);
         localStorage.setItem('token', accessToken);
@@ -44,7 +42,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        console.log("Cerrando sesión...");
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         setToken(null);
@@ -52,7 +49,6 @@ export const AuthProvider = ({ children }) => {
         setRol(null);
         setName("");
         setLastName("");
-        console.log("Sesión cerrada. Token y rol restablecidos.");
     };
 
     return (

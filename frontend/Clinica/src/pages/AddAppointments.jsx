@@ -234,7 +234,7 @@ export function AddAppointment() {
                         </div>
 
                         <div className="text-end mb-2">
-                            <button type="submit" className="btn btn-success btn-lg">
+                            <button type="submit" className="btn btn-success">
                                 Agendar
                             </button>
                         </div>

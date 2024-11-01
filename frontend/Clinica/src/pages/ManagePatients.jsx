@@ -5,8 +5,8 @@ import { NavigationBar } from '../components/NavigationBar';
 
 export function ManagePatients() {
     const services = [
-        { icon: <UserPlus size={48} />, title: 'Agregar Paciente', link: '/add-patient' },
-        { icon: <Users size={48} />, title: 'Actualizar o Eliminar Pacientes', link: '/update-patient' },
+        { icon: <UserPlus size={48} />, title: 'Registrar Paciente', link: '/add-patient' },
+        { icon: <Users size={48} />, title: 'Actualizar Pacientes', link: '/update-patient' },
         { icon: <List size={48} />, title: 'Listar Pacientes', link: '/list-patient' }
     ];
 

@@ -83,7 +83,7 @@ export function ListPatients() {
             <NavigationBar title={"Listado de Pacientes"} />
             <div className="container-fluid mt-2">
                 <div className="row mb-4">
-                    <div className="col-md-6">
+                    <div className="col-md-8">
                         <div className="input-group">
                             <span className="input-group-text">
                                 <Search size={20} />

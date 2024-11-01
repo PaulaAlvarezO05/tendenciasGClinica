@@ -28,7 +28,6 @@ clinicaApi.interceptors.response.use(
 
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
-                console.log(refreshToken)
                 
                 const response = await clinicaApi.post('/token/refresh/', {
                     refresh: refreshToken
@@ -38,12 +37,11 @@ clinicaApi.interceptors.response.use(
 
                 const newToken = response.data.access;
                 localStorage.setItem('token', newToken);
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
                 
                 return axios(originalRequest);
             } catch (err) {
-                console.error('Error al renovar el token', err.response ? err.response.data : err);
-                const refreshToken = localStorage.getItem('refreshToken')
-                console.log(refreshToken)
+                console.error('Error al renovar el token', err);
                 localStorage.removeItem('token');
                 localStorage.removeItem('refreshToken');
                 window.location.href = '/login';

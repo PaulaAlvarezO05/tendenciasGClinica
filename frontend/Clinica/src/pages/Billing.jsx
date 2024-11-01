@@ -31,13 +31,13 @@ export function ListBillings() {
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
         doc.text('FACTURA', 105, 20, { align: 'center' });
-        
+
         doc.setFontSize(12);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(18);
 
         const tableColumn = [
-            "Descripción", 
+            "Descripción",
             "Valor"
         ];
 
@@ -70,37 +70,31 @@ export function ListBillings() {
         const fechaEmision = new Date().toLocaleString();
         doc.setFontSize(8);
         doc.text(`Documento generado el: ${fechaEmision}`, 105, pageHeight - 10, { align: 'center' });
-    
+
         doc.save(`Factura_${billing.id}.pdf`);
     };
-       
+
     const filteredBillings = billings.filter(billing =>
         (billing.paciente_nombre && billing.paciente_nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (billing.detalles && billing.detalles.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-
-    if (loading) {
-        return <div>Cargando...</div>;
-    }
 
     return (
         <div>
             <NavigationBar title={"Listado de Facturas"} />
             <div className="container-fluid mt-2">
                 <div className="row mb-4">
-                    <div className="col-md-6">
-                        <div className="input-group">
-                            <span className="input-group-text">
-                                <Search size={20} />
-                            </span>
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Buscar factura por paciente o detalles..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
+                    <div className="input-group">
+                        <span className="input-group-text">
+                            <Search size={20} />
+                        </span>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Buscar factura por paciente o detalles..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
                 </div>
 

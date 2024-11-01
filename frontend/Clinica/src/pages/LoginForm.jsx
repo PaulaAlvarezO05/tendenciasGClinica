@@ -50,7 +50,7 @@ export const LoginForm = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary w-100">Iniciar sesión</button>
+                    <button type="submit" className="btn btn-success w-100">Iniciar sesión</button>
                     {errorMessage && <div className="alert alert-danger mt-3">{errorMessage}</div>}
                 </form>
             </div>

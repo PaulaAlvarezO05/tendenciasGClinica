@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getPatients } from '../api/Clinica.api';
 import { NavigationBar } from '../components/NavigationBar';
 import { useNavigate } from 'react-router-dom';
+import { FileText } from 'lucide-react';
 
 export function ListMedicalRecordPatients() {
     const [patients, setPatients] = useState([]);
@@ -21,7 +22,7 @@ export function ListMedicalRecordPatients() {
 
     return (
         <div>
-            <NavigationBar title={"Listado de Pacientes"} />
+            <NavigationBar title={"Pacientes"} />
             <div className="container mt-2">
                 <div className="table-responsive shadow-sm p-3 mb-4 bg-white rounded">
                     <table className="table table-striped table-bordered table-hover">
@@ -40,9 +41,9 @@ export function ListMedicalRecordPatients() {
                                     <td>{patient.email}</td>
                                     <td>{patient.telefono}</td>
                                     <td className="text-center">
-                                        <button className="btn btn-info btn-sm"
+                                        <button className="btn btn-success btn-sm"
                                             onClick={() => handleMedicalRecordPatient(patient)}>
-                                                Ver Historia Clínica
+                                               <FileText />
                                         </button>
                                     </td>
                                 </tr>

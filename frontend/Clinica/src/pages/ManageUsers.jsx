@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, UserPlus, List } from 'lucide-react';
@@ -6,9 +5,9 @@ import { NavigationBar } from '../components/NavigationBar';
 
 export function ManageUsers() {
     const services = [
-        { icon: <UserPlus size={48} />, title: 'Agregar Empleados', link: '/add-user' },
-        { icon: <Users size={48} />, title: 'Actualizar o Eliminar Empleados', link: '/update-user' },
-        { icon: <List size={48} />, title: 'Listar Empleados', link: '/list-user' }
+        { icon: <UserPlus size={48} />, title: 'Registro Empleados', link: '/add-user' },
+        { icon: <Users size={48} />, title: 'Actualización Empleados', link: '/update-user' },
+        { icon: <List size={48} />, title: 'Listado Empleados', link: '/list-user' }
     ];
 
     return (

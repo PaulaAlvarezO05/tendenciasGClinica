@@ -176,7 +176,7 @@ export function AddMedicalRecords() {
                         </div>
 
                         <div className="text-end mb-1">
-                            <Button type="submit" className="btn btn-success btn-lg" onClick={handleSubmit}>
+                            <Button type="submit" className="btn btn-success" onClick={handleSubmit}>
                                 Registrar
                             </Button>
                         </div>
