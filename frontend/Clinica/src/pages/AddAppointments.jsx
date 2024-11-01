@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getPatients, getMedicos, getConsultationType, getRol, addAppointment } from '../api/Clinica.api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserSearch, Stethoscope, Calendar, ClipboardList } from 'lucide-react';
@@ -19,28 +19,30 @@ export function AddAppointment() {
     const [estado] = useState('Programada');
     const [successMessage, setSuccessMessage] = useState('');
     const [showPatientDropdown, setShowPatientDropdown] = useState(false);
+    const [selectedPatientData, setSelectedPatientData] = useState(null);
+
+    const loadData = useCallback(async () => {
+        try {
+            const [patientsRes, medicosRes, consultationRes, rolRes] = await Promise.all([
+                getPatients(),
+                getMedicos(),
+                getConsultationType(),
+                getRol()
+            ]);
+
+            setListPatient(patientsRes.data);
+            setListUsers(medicosRes.data);
+            setListMedico(medicosRes.data);
+            setListConsultation(consultationRes.data);
+            setListRol(rolRes.data);
+        } catch (error) {
+            console.error('Error al cargar los datos:', error);
+        }
+    }, []);
 
     useEffect(() => {
-        async function loadData() {
-            try {
-                const [patientsRes, medicosRes, consultationRes, rolRes] = await Promise.all([
-                    getPatients(),
-                    getMedicos(),
-                    getConsultationType(),
-                    getRol()
-                ]);
-
-                setListPatient(patientsRes.data);
-                setListUsers(medicosRes.data);
-                setListMedico(medicosRes.data);
-                setListConsultation(consultationRes.data);
-                setListRol(rolRes.data);
-            } catch (error) {
-                console.error('Error al cargar los datos:', error);
-            }
-        }
         loadData();
-    }, []);
+    }, [loadData]);
 
     useEffect(() => {
         if (searchPatient.length > 0) {
@@ -59,6 +61,7 @@ export function AddAppointment() {
     const handlePatientSelect = (selectedPatient) => {
         setPatient(selectedPatient.id);
         setSearchPatient(selectedPatient.nombre_completo);
+        setSelectedPatientData(selectedPatient);
         setShowPatientDropdown(false);
     };
 
@@ -91,7 +94,7 @@ export function AddAppointment() {
         e.preventDefault();
 
         const newAppoinment = {
-            paciente: patient,
+            paciente: selectedPatientData ? selectedPatientData.id : patient,
             medico: medico,
             fecha_hora: fecha_hora,
             tipo_consulta: consultation,
@@ -100,8 +103,11 @@ export function AddAppointment() {
 
         try {
             await addAppointment(newAppoinment);
+            await loadData();
+            
             setPatient('');
             setSearchPatient('');
+            setSelectedPatientData(null);
             setMedico('');
             setFechaHora('');
             setConsultation('');
@@ -109,7 +115,25 @@ export function AddAppointment() {
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             console.error('Error al agendar cita:', error);
-            setSuccessMessage('Error al agendar cita. Inténtalo de nuevo.');
+            if (error.response?.status === 401) {
+                try {
+                    await addAppointment(newAppoinment);
+                    await loadData();
+                    
+                    setPatient('');
+                    setSearchPatient('');
+                    setSelectedPatientData(null);
+                    setMedico('');
+                    setFechaHora('');
+                    setConsultation('');
+                    setSuccessMessage('Cita agendada exitosamente!');
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                } catch (retryError) {
+                    setSuccessMessage('Error al agendar cita. Inténtalo de nuevo.');
+                }
+            } else {
+                setSuccessMessage('Error al agendar cita. Inténtalo de nuevo.');
+            }
         }
     };
 
@@ -120,7 +144,6 @@ export function AddAppointment() {
                 <div className="bg-light p-4 rounded shadow">
                     {successMessage && <div className="alert alert-success text-center">{successMessage}</div>}
                     <form onSubmit={handleSubmit}>
-
                         <div className="form-group mb-3">
                             <div className="form-group position-relative">
                                 <label htmlFor="fecha_hora" className="form-label fw-bold">
@@ -210,7 +233,6 @@ export function AddAppointment() {
                                         </option>
                                     ))}
                                 </select>
-
                             </div>
                         </div>
 
