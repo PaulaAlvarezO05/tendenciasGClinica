@@ -9,6 +9,25 @@ const clinicaApi = axios.create({
 })
 
 
+// Ejemplo de solicitud
+clinicaApi.get('/api') // Reemplaza con la ruta correcta
+    .then(response => {
+        console.log(response.data); // Maneja la respuesta
+    })
+    .catch(error => {
+        if (error.response) {
+            // La solicitud fue hecha y el servidor respondió con un código de estado
+            console.error('Error en la respuesta:', error.response.data);
+            console.error('Código de estado:', error.response.status);
+        } else if (error.request) {
+            // La solicitud fue hecha pero no se recibió respuesta
+            console.error('No se recibió respuesta:', error.request);
+        } else {
+            // Algo sucedió al configurar la solicitud
+            console.error('Error al configurar la solicitud:', error.message);
+        }
+    });
+
 // Implementación de JWT
 clinicaApi.interceptors.request.use(
     (config) => {
