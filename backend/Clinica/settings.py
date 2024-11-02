@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-y+l^r=s2k5l&0eqet6wm5l=6ag27i@8llm514$wegacuxn!k+2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'gestion-clinica-back.vercel.app']
 
 AUTH_USER_MODEL = 'users.User'
 # Application definition
@@ -165,7 +165,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = ['https://gestion-clinica.vercel.app',
                         'http://localhost:5173',                       
                         ]
-
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True  
 CORS_ALLOW_METHODS = [    'DELETE',    'GET',    'OPTIONS',    'PATCH',    'POST',    'PUT',]
 CORS_ALLOW_HEADERS = [    'accept',    'accept-encoding',    'authorization',    'content-type',    'dnt',    'origin',    'user-agent',    'x-csrftoken',    'x-requested-with',]
