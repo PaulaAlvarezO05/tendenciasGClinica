@@ -1,7 +1,9 @@
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_API_URL
+
 
 const clinicaApi = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/'
+    baseURL: `${API_URL}/api/`
 })
 
 // Implementación de JWT
