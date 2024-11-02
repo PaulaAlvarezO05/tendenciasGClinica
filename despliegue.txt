@@ -1,0 +1,2 @@
+https://gestion-clinica.vercel.app/
+https://gestion-clinica-back.vercel.app/
