@@ -162,9 +162,8 @@ STORAGES = {
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = ["https://gestion-clinica.vercel.app",
-                        "http://localhost:5173",
-                        "https://gestion-clinica-git-grupo4-paula-alvarezs-projects.vercel.app/"
+CORS_ALLOWED_ORIGINS = ['https://gestion-clinica.vercel.app',
+                        'http://localhost:5173',                       
                         ]
 
 CORS_ALLOW_CREDENTIALS = True  

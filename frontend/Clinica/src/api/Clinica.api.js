@@ -1,9 +1,9 @@
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_API_URL
 
 const clinicaApi = axios.create({
-    baseURL: 'https://gestion-clinica-back.vercel.app/api/'
-
-   
+    baseURL: `${API_URL}/api`
+  
 })
 
 // Implementación de JWT
