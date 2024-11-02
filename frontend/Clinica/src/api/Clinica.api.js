@@ -4,7 +4,10 @@ const API_URL = import.meta.env.VITE_API_URL
 
 const clinicaApi = axios.create({
     baseURL: `${API_URL}/api/`
+
+   
 })
+
 
 // Implementación de JWT
 clinicaApi.interceptors.request.use(
@@ -62,9 +65,12 @@ export const login = async (credentials) => {
             refreshToken: response.data.refresh
         };
     } catch (error) {
+        console.log (baseURL)
         console.error("Error en el inicio de sesión:", error.response ? error.response.data : error.message);
         throw error;
+      
     }
+    
 };
 
 export const getUser = async (id) => {
